@@ -40,8 +40,8 @@ vpath %.c libs/STM32F4x7_ETH_Driver/src/core/ipv4
 vpath %.c libs/STM32F4x7_ETH_Driver/src/core/snmp
 vpath %.c libs/STM32F4x7_ETH_Driver/src/api
 
-ARM_GCC_LINK_DIR = mystery_ld
-ARM_GCC_LD = arm-gcc-link.ld
+ARM_GCC_LINK_DIR=linker
+ARM_GCC_LD=arm-gcc-link.ld
 OBJDIR = build/
 ROOT=$(shell pwd)
 CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
