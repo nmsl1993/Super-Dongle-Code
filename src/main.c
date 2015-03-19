@@ -213,13 +213,13 @@ void DMA2_Stream0_IRQHandler(void) // Called at 1 KHz for 200 KHz sample rate, L
 		DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_HTIF0);
 		if(DMA_GetCurrentMemoryTarget(DMA2_Stream0) == 0)
 		{
-			doADCTransfer = 2; //DMA writing to ADCTripleConvertedValues, send ADCTripleConvertedValuesShadow via Ethernet
+			doADCTransfer = 1; //DMA writing to ADCTripleConvertedValues, send ADCTripleConvertedValuesShadow via Ethernet
 
 
 		}
 		else if(DMA_GetCurrentMemoryTarget(DMA2_Stream0) == 1)
 		{
-            doADCTransfer = 1; //DMA writing to ADCTripleConvertedValuesShadow, send ADCTripleConvertedValues via Ethernet
+            doADCTransfer = 2; //DMA writing to ADCTripleConvertedValuesShadow, send ADCTripleConvertedValues via Ethernet
 		}
 
 		GPIO_ResetBits(GPIOE, LED4);
