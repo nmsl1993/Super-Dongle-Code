@@ -15,11 +15,13 @@ class UDPThread(threading.Thread):
         self.lock = threading.Lock()
         self.data = ''
         self.addr = ''
+        self.packet_counter = 0;
     def run(self):
         while(1):
             self.lock.acquire()
             try:
                 self.data, self.addr = self.sock.recvfrom(UDP_PAYLOAD_SIZE);
+                self.packet_counter += 1
             finally:
                 self.lock.release()
                 time.sleep(.00001)
@@ -40,6 +42,7 @@ ax.set_xlim((0,100))
 ax.set_ylim((0,4100))
 #line1,line2,line3 = ax.plot(x, y, 'r-',label='ADC1',x,y,'b-',label='ADC2',x,y,'g-',label='ADC3') # Returns a tuple of line objects, thus the comma
 line1,line2,line3 = ax.plot(x, y, 'r-',x,y,'b-',x,y,'g-') # Returns a tuple of line objects, thus the comma
+start_time = time.time()
 while(1):
     print "drawloop"
     udpthread.lock.acquire()
@@ -50,10 +53,10 @@ while(1):
         addr = udpthread.addr
     finally:
         udpthread.lock.release()
-    print 'Connected by:', addr, 'bufsize', len(data)
+    print 'Connected by:', addr, 'bufsize', len(data), 'Recieved', udpthread.packet_counter, ' packets. ', float(udpthread.packet_counter)/(time.time() - start_time), ' per second'
     #print binascii.hexlify(data)
     #print binascii.hexlify(data)[1200:]
-    nd = numpy.asarray(struct.unpack("300H50x",data))
+    nd = numpy.asarray(struct.unpack("300H50x",data)) #300 16bit unsigneds, followed by 50 junk bits
     print nd
 
 

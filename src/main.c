@@ -7,8 +7,7 @@
 #include "stm32f4xx_conf.h"
 #include "netconf.h"
 #include "main.h"
-
-#include "httpd.h"
+#include "pbuf.h"
 #include "ip_addr.h"
 
 #define SYSTEMTICK_PERIOD_MS  10
@@ -16,15 +15,14 @@
 #define ADC_CDR_ADDRESS    ((uint32_t)0x40012308)
 RCC_ClocksTypeDef RCC_Clocks;
 
-__IO uint16_t ADCTripleConvertedValues[BUFFERSIZE]; // Filled as pairs ADC1, ADC2
-__IO uint16_t ADCTripleConvertedValuesShadow[BUFFERSIZE]; // Filled as pairs ADC1, ADC2
+__IO uint16_t ADCTripleConvertedValues[BUFFERSIZE]; // Filled as pairs ADC1, ADC2, First buffer used in DMA double buffering
+__IO uint16_t ADCTripleConvertedValuesShadow[BUFFERSIZE]; // Filled as pairs ADC1, ADC2, Second buffer used in DMA double buffering
 __IO uint32_t LocalTime = 0; /* this variable is used to create a time reference incremented by 10ms */
 
-volatile uint8_t doADCTransfer=0;
+volatile uint8_t doADCTransfer=0; //0 indicates don't do transfer, 1 indicates transfer ADCTripleConvertedValues, 2 indicates transfer ADCTripleConvertedValuesShadow
 uint32_t timingdelay;
 struct udp_pcb *upcb;
 __IO   uint32_t message_count = 0;
-__IO   uint8_t  TX_Enabled = 0;
 struct pbuf *p;
 
 struct ip_addr DestIPaddr;
@@ -214,16 +212,16 @@ void DMA2_Stream0_IRQHandler(void) // Called at 1 KHz for 200 KHz sample rate, L
 		DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_HTIF0);
 		if(DMA_GetCurrentMemoryTarget(DMA2_Stream0) == 0)
 		{
-			doADCTransfer = 1;
+			doADCTransfer = 2; //DMA writing to ADCTripleConvertedValues, send ADCTripleConvertedValuesShadow via Ethernet
 
-			GPIO_ResetBits(GPIOE, LED4);
 
 		}
 		else if(DMA_GetCurrentMemoryTarget(DMA2_Stream0) == 1)
 		{
-			GPIO_ResetBits(GPIOE, LED4);
+            doADCTransfer = 1; //DMA writing to ADCTripleConvertedValuesShadow, send ADCTripleConvertedValues via Ethernet
 		}
 
+		GPIO_ResetBits(GPIOE, LED4);
 	}
 
 	/* Test on DMA Stream Transfer Complete interrupt */
@@ -288,7 +286,6 @@ int main(void)
 
 
 
-	TX_Enabled = 1;          // ISR can now TX data
 
 
 
@@ -306,36 +303,39 @@ int main(void)
 	/* configure destination IP address and port */
 	p = pbuf_alloc(PBUF_TRANSPORT, sizeof(ADCTripleConvertedValues), PBUF_RAM);
 
-
+/*
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* ADC Channel 10 -> PC0
-     ADC Channel 12 -> PC2
-     ADC Channel 13 -> PC3
-	 */
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 |GPIO_Pin_3;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
-	/* Start ADC1 Software Conversion */
+*/
+    /* Start ADC1 Software Conversion */
 	ADC_SoftwareStartConv(ADC1);
 
-	//GPIO_ResetBits(GPIOE,LED4);
-	do_blink = 1;
+	do_blink = 1; //Indicates that initialization is done
 	uint32_t t = 0;
 	while (1)
 	{
 		GPIO_ToggleBits(GPIOE,LED2);
 		//Check if ADC buffer is ready to send
 
-		if(doADCTransfer && p != NULL)
+		if(doADCTransfer == 1 && p != NULL)
 		{
-			memcpy(p->payload,ADCTripleConvertedValuesShadow,sizeof(ADCTripleConvertedValues));
+			memcpy(p->payload,ADCTripleConvertedValuesShadow,sizeof(ADCTripleConvertedValuesShadow));
 			udp_sendto(upcb, p, &DestIPaddr, 8889 );
 
 			doADCTransfer = 0;
 		}
+        else if(doADCTransfer == 2 && p != NULL)
+        {
+			memcpy(p->payload,ADCTripleConvertedValues,sizeof(ADCTripleConvertedValues));
+			udp_sendto(upcb, p, &DestIPaddr, 8889 );
+
+			doADCTransfer = 0;
+        }
 		// check if any packet received
 		if (ETH_CheckFrameReceived()) {
 			// process received ethernet packet

@@ -111,7 +111,6 @@ void Time_Update(void);
 void Delay(uint32_t nCount);
 extern struct pbuf *p;
 extern __IO  uint32_t message_count;
-extern __IO   uint8_t  TX_Enabled;
 extern struct udp_pcb *upcb;
 
 #ifdef __cplusplus

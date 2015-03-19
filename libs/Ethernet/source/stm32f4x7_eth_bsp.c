@@ -214,11 +214,14 @@ void ETH_GPIO_Config(void)
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_ETH);
 
   /* Configure PC1, PC2, PC3, PC4 and PC5 */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
+  //Changed by Noah, PC2 and PC3 are only neeeded by Ethernet for MII, but I need them for ADC stuff.
+  //GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 |  GPIO_Pin_4 | GPIO_Pin_5;
+
   GPIO_Init(GPIOC, &GPIO_InitStructure);
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource1, GPIO_AF_ETH);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource2, GPIO_AF_ETH);
-  GPIO_PinAFConfig(GPIOC, GPIO_PinSource3, GPIO_AF_ETH);
+  //GPIO_PinAFConfig(GPIOC, GPIO_PinSource2, GPIO_AF_ETH);
+  //GPIO_PinAFConfig(GPIOC, GPIO_PinSource3, GPIO_AF_ETH);
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource4, GPIO_AF_ETH);
   GPIO_PinAFConfig(GPIOC, GPIO_PinSource5, GPIO_AF_ETH);
                                 
