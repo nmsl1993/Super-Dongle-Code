@@ -21,7 +21,8 @@ __IO uint32_t LocalTime = 0; /* this variable is used to create a time reference
 
 volatile uint8_t doADCTransfer=0; //0 indicates don't do transfer, 1 indicates transfer ADCTripleConvertedValues, 2 indicates transfer ADCTripleConvertedValuesShadow
 uint32_t timingdelay;
-struct udp_pcb *upcb;
+struct udp_pcb *upcb; //Used for output streaming of data.
+struct tcp_pcb *tpcb;
 __IO   uint32_t message_count = 0;
 struct pbuf *p;
 
@@ -252,12 +253,7 @@ void Time_Update(void)
 
 int main(void)
 {
-	unsigned int i =0;
-	do_blink = 0;
-	for(i = 0; i < BUFFERSIZE; i++)
-	{
-		ADCTripleConvertedValuesShadow[i]=i;
-	}
+	do_blink = 0; //This controls whether the blue LED1 blinks.
 	RCC_Configuration();
 	RCC_GetClocksFreq(&RCC_Clocks);
 	GPIO_Configuration();
@@ -275,43 +271,26 @@ int main(void)
 	ADC_Configuration();
 
 	while (SysTick_Config(SystemCoreClock / 100) != 0) {
-	} // One SysTick interrupt now equals 1us
+	} // One SysTick interrupt now equals 10ms
 	GPIO_ResetBits(GPIOE,LED4);
 
-
-	/****************************/
-
-	/* configure ethernet (GPIOs, clocks, MAC, DMA) */
+	// configure ethernet (GPIOs, clocks, MAC, DMA) 
 	ETH_BSP_Config();
 
-
-
-
-
-
-	/****************************/
-
-	/* Initilaize the LwIP stack */
+	// Initilaize the LwIP stack
 	GPIO_SetBits(GPIOE,LED3);
 	LwIP_Init();
 	//Httpd init
 	//httpd_init();
-	/* create a UDP process control block */
+
+    // create a TCP process control block
+	// create a UDP process control block 
 	upcb = udp_new();
-	/* configure destination IP address and port */
+	// configure destination IP address and port 
 	IP4_ADDR(&DestIPaddr, DEST_IP_ADDR0, DEST_IP_ADDR1, DEST_IP_ADDR2, DEST_IP_ADDR3 );
-	/* configure destination IP address and port */
+	/* Allocate pbuf for streamed data */
 	p = pbuf_alloc(PBUF_TRANSPORT, sizeof(ADCTripleConvertedValues), PBUF_RAM);
 
-/*
-	GPIO_InitTypeDef GPIO_InitStructure;
-
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 |GPIO_Pin_3;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-	GPIO_Init(GPIOC, &GPIO_InitStructure);
-*/
     /* Start ADC1 Software Conversion */
 	ADC_SoftwareStartConv(ADC1);
 
