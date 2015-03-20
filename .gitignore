@@ -35,7 +35,7 @@
 # Proto stuff
 nanopb_pb2.py
 plugin_pb2.py
-
+*.pb.*
 #Eclipse
 .cproject
 .project
