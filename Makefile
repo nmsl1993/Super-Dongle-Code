@@ -1,6 +1,4 @@
-# put your *.o targets here, make should handle the rest!
-
-# all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
+include libs/nanopb/extra/nanopb.mk
 
 PROJ_NAME=udp_adc
 ST_FLASH=st-flash
@@ -16,16 +14,11 @@ OBJCOPY=arm-none-eabi-objcopy
 #CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
 ###################################################
-#vpath %.c STM32F4x7_ETH_Driver/src
-#vpath %.c lib/STM32F4x7_ETH_Driver/src
-#vpath %.c Utilities/STM32F4-Discovery
 
-#vpath %.c src
-#vpath %.a lib
-#vpath %.a lwip
+
 
 vpath %.c src
-vpath %.c libs/stdio
+vpath %.c libs/nanopb
 vpath %.c libs/syscalls
 vpath %.c libs/cmsis/cmsis_boot
 vpath %.c libs/cmsis/cmsis_boot/startup
@@ -42,13 +35,14 @@ vpath %.c libs/STM32F4x7_ETH_Driver/src/api
 
 ARM_GCC_LINK_DIR=linker
 ARM_GCC_LD=arm-gcc-link.ld
+PBUF_NAME = message
 OBJDIR = build/
 ROOT=$(shell pwd)
 CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
 
 CFLAGS += -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip -Ilibs/cmsis/cmsis_lib -Ilibs/cmsis -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
 CFLAGS += -Ilibs/STM32F4x7_ETH_Driver/src/netif -Ilibs/STM32F4x7_ETH_Driver/inc -Ilibs/cmsis/cmsis_lib/include -Ilibs/STM32F4x7_ETH_Driver/src/netif/ppp 
-CFLAGS += -Ilibs/Ethernet -Ilibs/STM32F4x7_ETH_Driver/src -Ilibs/STM32F4x7_ETH_Driver/inc/netif
+CFLAGS += -Ilibs/Ethernet -Ilibs/STM32F4x7_ETH_Driver/src -Ilibs/STM32F4x7_ETH_Driver/inc/netif -Ilibs/nanopb
 #SRCS += lib/startup_stm32f4xx.s # add startup file to build
 
 ELFFLAGS = -mcpu=cortex-m4 -mthumb -g -nostartfiles -Wl,-Map=$(PROJ_NAME).map -O0 -Wl,--gc-sections
@@ -61,7 +55,8 @@ SRCS += inet.c msg_in.c netif.c asn1_enc.c fsm.c api_msg.c chap.c stm32f4xx_gpio
 ##Second cmd
 SRCS += igmp.c pap.c udp.c ip.c auth.c stm32f4xx_exti.c ppp_oe.c icmp.c dns.c netifapi.c misc.c api_lib.c dhcp.c ppp.c  ipcp.c tcp_out.c loopif.c raw.c
 SRCS += stm32f4xx_tim.c
-SRCS += stm32f4xx_dma.c
+SRCS += stm32f4xx_dma.c udp_echoserver.c
+SRCS += pb_encode.c pb_decode.c pb_common.c $(PBUF_NAME).pb.c
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 ###################################################
@@ -72,7 +67,9 @@ all: proj
 $(OBJS):$(OBJDIR)%.o : %.c
 	$(CC) $(CFLAGS) -o $@ $^
 
-
+$(PBUF_NAME).pb.c: $(PBUF_NAME).proto
+	cd libs/nanopb/generator/proto/ && make -f Makefile
+	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. $(PBUF_NAME).proto
 flash: $(PROJ_NAME).elf
 	$(ST_FLASH) write $(PROJ_NAME).bin 0x8000000
 proj: 	$(PROJ_NAME).elf
@@ -88,4 +85,7 @@ clean:
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).bin
 	rm -f $(PROJ_NAME).map
+	rm -f $(PBUF_NAME).pb.c
+	rm -f $(PBUF_NAME).pb.h
+	cd libs/nanopb/generator/proto/ && make -f Makefile clean
 	rm -f $(OBJS)

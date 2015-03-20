@@ -29,3 +29,13 @@
 *.hex
 *.bin
 *.map
+
+#Python
+*.pyc
+# Proto stuff
+nanopb_pb2.py
+plugin_pb2.py
+
+#Eclipse
+.cproject
+.project

@@ -4,7 +4,7 @@ import threading
 import matplotlib.pyplot as plt
 UDP_PAYLOAD_SIZE=650
 UDP_IP="" #This means all interfaces?
-UDP_PORT=8889
+UDP_PORT=8899
 
 #sock.setblocking(0)
 class UDPThread(threading.Thread):

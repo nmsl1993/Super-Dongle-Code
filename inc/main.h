@@ -1,24 +1,4 @@
-/**
-  ******************************************************************************
-  * @file    main.h
-  * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    31-October-2011 
-  * @brief   This file contains all the functions prototypes for the main.c 
-  *          file.
-  ******************************************************************************
-  * @attention
-  *
-  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
-  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
-  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
-  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
-  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
-  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
-  *
-  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
-  ******************************************************************************
-  */
+
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H
@@ -33,22 +13,22 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-
-//#define USE_LCD        /* enable LCD  */
-//#define USE_DHCP       /* enable DHCP, if disabled static address is used */
-   
-/* Uncomment SERIAL_DEBUG to enables retarget of printf to serial port (COM1 on STM32 evalboard) 
-   for debug purpose */   
-//#define SERIAL_DEBUG
+#define LED1 GPIO_Pin_9
+#define LED2 GPIO_Pin_11
+#define LED3 GPIO_Pin_13
+#define LED4 GPIO_Pin_15
+#define PGA0 GPIO_Pin_3
+#define PGA1 GPIO_Pin_2
 
 #define DEST_IP_ADDR0   10
 #define DEST_IP_ADDR1   0
 #define DEST_IP_ADDR2   0
 #define DEST_IP_ADDR3   255
  
-#define UDP_SERVER_PORT    8899   /* define the UDP local connection port */
-#define UDP_CLIENT_PORT    8899   /* define the UDP remote connection port */
-
+#define UDP_SERVER_DATA_PORT    8899   //Local port for streaming data
+#define UDP_CLIENT_DATA_PORT    8899   //Remote port for streaming data
+#define UDP_SERVER_COMMAND_PORT    8898   //Local port for communications
+#define UDP_CLIENT_COMMAND_PORT    8898   //Remote port for communications
 
 /* MAC ADDRESS: MAC_ADDR0:MAC_ADDR1:MAC_ADDR2:MAC_ADDR3:MAC_ADDR4:MAC_ADDR5 */
 #define MAC_ADDR0   0xAA

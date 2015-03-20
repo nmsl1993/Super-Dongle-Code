@@ -9,6 +9,7 @@
 #include "main.h"
 #include "pbuf.h"
 #include "ip_addr.h"
+#include "udp_echoserver.h"
 
 #define SYSTEMTICK_PERIOD_MS  10
 #define BUFFERSIZE 300  // I+Q 200KHz x2 HT/TC at 1KHz
@@ -27,25 +28,20 @@ __IO   uint32_t message_count = 0;
 struct pbuf *p;
 
 struct ip_addr DestIPaddr;
-#define LED1 GPIO_Pin_9
-#define LED2 GPIO_Pin_11
-#define LED3 GPIO_Pin_13
-#define LED4 GPIO_Pin_15
-#define PGA0 GPIO_Pin_3
-#define PGA1 GPIO_Pin_2
+
 volatile char do_blink;
 /**************************************************************************************/
 
 void RCC_Configuration(void)
 {
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
-	 RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
-	 RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);
-	 RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-	 RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD,ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA,ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD,ENABLE);
 
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
-	  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE);
@@ -206,7 +202,7 @@ void NVIC_Configuration(void)
 void DMA2_Stream0_IRQHandler(void) // Called at 1 KHz for 200 KHz sample rate, LED Toggles at 500 Hz
 {
 	/* Test on DMA Stream Half Transfer interrupt */
-	GPIO_ToggleBits(GPIOE,LED3);
+
 	if(DMA_GetITStatus(DMA2_Stream0, DMA_IT_HTIF0))
 	{
 		/* Clear DMA Stream Half Transfer interrupt pending bit */
@@ -278,8 +274,8 @@ int main(void)
 	ETH_BSP_Config();
 
 	// Initilaize the LwIP stack
-	GPIO_SetBits(GPIOE,LED3);
 	LwIP_Init();
+	udp_echoserver_init();
 	//Httpd init
 	//httpd_init();
 
@@ -304,14 +300,14 @@ int main(void)
 		if(doADCTransfer == 1 && p != NULL)
 		{
 			memcpy(p->payload,ADCTripleConvertedValuesShadow,sizeof(ADCTripleConvertedValuesShadow));
-			udp_sendto(upcb, p, &DestIPaddr, 8889 );
+			udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
 
 			doADCTransfer = 0;
 		}
         else if(doADCTransfer == 2 && p != NULL)
         {
 			memcpy(p->payload,ADCTripleConvertedValues,sizeof(ADCTripleConvertedValues));
-			udp_sendto(upcb, p, &DestIPaddr, 8889 );
+			udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
 
 			doADCTransfer = 0;
         }
