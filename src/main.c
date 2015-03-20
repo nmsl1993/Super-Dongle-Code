@@ -28,7 +28,7 @@ __IO   uint32_t message_count = 0;
 struct pbuf *p;
 
 struct ip_addr DestIPaddr;
-
+volatile unsigned int PGA_gain = 1000;
 volatile char do_blink;
 /**************************************************************************************/
 
@@ -254,18 +254,25 @@ bool setGain(uint32_t gain)
 		case 1:
 			GPIO_ResetBits(GPIOE,PGA0);
 			GPIO_ResetBits(GPIOE,PGA1);
+			break;
 		case 10:
 			GPIO_SetBits(GPIOE,PGA0);
 			GPIO_ResetBits(GPIOE,PGA1);
+			break;
 		case 100:
 			GPIO_ResetBits(GPIOE,PGA0);
 			GPIO_SetBits(GPIOE,PGA1);
+			break;
 		case 1000:
 			GPIO_SetBits(GPIOE,PGA0);
 			GPIO_SetBits(GPIOE,PGA1);
+			break;
 		default:
+		    GPIO_ToggleBits(GPIOE,LED3);
+
 			return false;
 	}
+
 	PGA_gain = gain;
 	return true;
 

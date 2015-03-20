@@ -83,7 +83,7 @@ extern struct pbuf *p;
 extern __IO  uint32_t message_count;
 extern struct udp_pcb *upcb;
 
-extern volatile uint32_t PGA_gain;
+
 #ifdef __cplusplus
 }
 #endif

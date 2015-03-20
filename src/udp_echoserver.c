@@ -142,15 +142,23 @@ void udp_echoserver_receive_callback(void *arg, struct udp_pcb *upcb, struct pbu
     
     if (type == PGAGainCommand_fields)
     {
+
         PGAGainCommand msg = {};
         status = decode_command_contents(&stream, PGAGainCommand_fields, &msg);
-        //printf("Got MsgType1: %d\n", msg.value);
+        setGain(msg.gain);
     }
     else if (type == LEDCommand_fields)
     {
         LEDCommand msg = {};
         status = decode_command_contents(&stream, LEDCommand_fields, &msg);
-        GPIO_ToggleBits(GPIOE,LED3);
+        if(msg.on)
+        {
+        GPIO_ResetBits(GPIOE,LED3);
+        }
+        else
+        {
+        GPIO_SetBits(GPIOE,LED3);
+        }
     }
     
     if (!status)
