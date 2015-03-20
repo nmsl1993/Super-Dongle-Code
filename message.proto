@@ -16,7 +16,7 @@ message LEDCommand
 }
 message Command 
 {
-    optional PGAGainCommand pgc = 1;
-    optional DataStreamCommand dsc= 2;
-    optional LEDCommand ldc = 3;
+    optional PGAGainCommand PGAGainCommand = 1;
+    optional DataStreamCommand DataStreamCommand= 2;
+    optional LEDCommand LEDCommand = 3;
 }

@@ -33,8 +33,7 @@
 #Python
 *.pyc
 # Proto stuff
-nanopb_pb2.py
-plugin_pb2.py
+*_pb2.py
 *.pb.*
 #Eclipse
 .cproject

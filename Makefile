@@ -72,7 +72,8 @@ udp_echoserver.o : $(PBUF_NAME).pb.c
 
 $(PBUF_NAME).pb.c: $(PBUF_NAME).proto
 	cd libs/nanopb/generator/proto/ && make -f Makefile
-	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. $(PBUF_NAME).proto
+	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. --python_out=. $(PBUF_NAME).proto
+
 flash: $(PROJ_NAME).elf
 	$(ST_FLASH) write $(PROJ_NAME).bin 0x8000000
 proj: 	$(PROJ_NAME).elf
@@ -90,5 +91,6 @@ clean:
 	rm -f $(PROJ_NAME).map
 	rm -f $(PBUF_NAME).pb.c
 	rm -f $(PBUF_NAME).pb.h
+	rm -f $(PBUF_NAME)_pb2.py
 	cd libs/nanopb/generator/proto/ && make -f Makefile clean
 	rm -f $(OBJS)
