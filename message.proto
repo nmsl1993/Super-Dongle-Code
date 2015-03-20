@@ -1,7 +1,22 @@
 // A very simple protocol definition, consisting of only
 // one message.
 
-message SimpleMessage {
-    required int32 lucky_number = 1;
-}
 
+message PGAGainCommand
+{
+	required uint32 gain = 1;//Acceptable options are 1,10,100,1000
+}
+message DataStreamCommand
+{
+	required bool doStream = 1;
+}
+message LEDCommand
+{
+	required bool on = 1;
+}
+message Command 
+{
+    optional PGAGainCommand pgc = 1;
+    optional DataStreamCommand dsc= 2;
+    optional LEDCommand ldc = 3;
+}

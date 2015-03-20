@@ -10,7 +10,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "stm32f4x7_eth_bsp.h"
-
+#include <stdbool.h>
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 #define LED1 GPIO_Pin_9
@@ -72,27 +72,18 @@
  #define PHY_CLOCK_MCO
 #endif
 #define MYROC_PKT_PAYLOAD_LEN 19
-/* STM324xG-EVAL jumpers setting
-    +==========================================================================================+
-    +  Jumper |       MII mode configuration            |      RMII mode configuration         +
-    +==========================================================================================+
-    +  JP5    | 2-3 provide 25MHz clock by MCO(PA8)     |  Not fitted                          +
-    +         | 1-2 provide 25MHz clock by ext. Crystal |                                      +
-    + -----------------------------------------------------------------------------------------+
-    +  JP6    |          2-3                            |  1-2                                 +
-    + -----------------------------------------------------------------------------------------+
-    +  JP8    |          Open                           |  Close                               +
-    +==========================================================================================+
-  */
-   
+
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */  
 void Time_Update(void);
 void Delay(uint32_t nCount);
+bool setGain(uint32_t gain);
+
 extern struct pbuf *p;
 extern __IO  uint32_t message_count;
 extern struct udp_pcb *upcb;
 
+extern volatile uint32_t PGA_gain;
 #ifdef __cplusplus
 }
 #endif

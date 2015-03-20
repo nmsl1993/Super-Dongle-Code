@@ -247,6 +247,29 @@ void Time_Update(void)
 }
 /**************************************************************************************/
 
+bool setGain(uint32_t gain)
+{
+	switch(gain)
+	{
+		case 1:
+			GPIO_ResetBits(GPIOE,PGA0);
+			GPIO_ResetBits(GPIOE,PGA1);
+		case 10:
+			GPIO_SetBits(GPIOE,PGA0);
+			GPIO_ResetBits(GPIOE,PGA1);
+		case 100:
+			GPIO_ResetBits(GPIOE,PGA0);
+			GPIO_SetBits(GPIOE,PGA1);
+		case 1000:
+			GPIO_SetBits(GPIOE,PGA0);
+			GPIO_SetBits(GPIOE,PGA1);
+		default:
+			return false;
+	}
+	PGA_gain = gain;
+	return true;
+
+}
 int main(void)
 {
 	do_blink = 0; //This controls whether the blue LED1 blinks.

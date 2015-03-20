@@ -40,7 +40,7 @@ OBJDIR = build/
 ROOT=$(shell pwd)
 CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
 
-CFLAGS += -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip -Ilibs/cmsis/cmsis_lib -Ilibs/cmsis -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
+CFLAGS += -I. -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip -Ilibs/cmsis/cmsis_lib -Ilibs/cmsis -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
 CFLAGS += -Ilibs/STM32F4x7_ETH_Driver/src/netif -Ilibs/STM32F4x7_ETH_Driver/inc -Ilibs/cmsis/cmsis_lib/include -Ilibs/STM32F4x7_ETH_Driver/src/netif/ppp 
 CFLAGS += -Ilibs/Ethernet -Ilibs/STM32F4x7_ETH_Driver/src -Ilibs/STM32F4x7_ETH_Driver/inc/netif -Ilibs/nanopb
 #SRCS += lib/startup_stm32f4xx.s # add startup file to build
@@ -56,7 +56,8 @@ SRCS += inet.c msg_in.c netif.c asn1_enc.c fsm.c api_msg.c chap.c stm32f4xx_gpio
 SRCS += igmp.c pap.c udp.c ip.c auth.c stm32f4xx_exti.c ppp_oe.c icmp.c dns.c netifapi.c misc.c api_lib.c dhcp.c ppp.c  ipcp.c tcp_out.c loopif.c raw.c
 SRCS += stm32f4xx_tim.c
 SRCS += stm32f4xx_dma.c udp_echoserver.c
-SRCS += pb_encode.c pb_decode.c pb_common.c $(PBUF_NAME).pb.c
+SRCS += pb_encode.c pb_decode.c pb_common.c udp_echoserver.c
+SRCS += $(PBUF_NAME).pb.c
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 ###################################################
@@ -66,6 +67,8 @@ OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 all: proj
 $(OBJS):$(OBJDIR)%.o : %.c
 	$(CC) $(CFLAGS) -o $@ $^
+
+udp_echoserver.o : $(PBUF_NAME).pb.c
 
 $(PBUF_NAME).pb.c: $(PBUF_NAME).proto
 	cd libs/nanopb/generator/proto/ && make -f Makefile

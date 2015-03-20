@@ -32,6 +32,8 @@
 #include "lwip/tcp.h"
 #include <string.h>
 #include <stdio.h>
+#include "pb_decode.h"
+#include "message.pb.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +47,46 @@ void udp_echoserver_receive_callback(void *arg, struct udp_pcb *upcb, struct pbu
 
 /* Private functions ---------------------------------------------------------*/
 
+
+const pb_field_t* decode_command_type(pb_istream_t *stream)
+{
+    pb_wire_type_t wire_type;
+    uint32_t tag;
+    bool eof;
+
+    while (pb_decode_tag(stream, &wire_type, &tag, &eof))
+    {
+        if (wire_type == PB_WT_STRING)
+        {
+            const pb_field_t *field;
+            for (field = Command_fields; field->tag != 0; field++)
+            {
+                if (field->tag == tag && (field->type & PB_LTYPE_SUBMESSAGE))
+                {
+                    /* Found our field. */
+                    return field->ptr;
+                }
+            }
+        }
+        
+        /* Wasn't our field.. */
+        pb_skip_field(stream, wire_type);
+    }
+    
+    return NULL;
+}
+
+bool decode_command_contents(pb_istream_t *stream, const pb_field_t fields[], void *dest_struct)
+{
+    pb_istream_t substream;
+    bool status;
+    if (!pb_make_string_substream(stream, &substream))
+        return false;
+    
+    status = pb_decode(&substream, fields, dest_struct);
+    pb_close_string_substream(stream, &substream);
+    return status;
+}
 /**
   * @brief  Initialize the server application.
   * @param  None
@@ -92,11 +134,30 @@ void udp_echoserver_init(void)
   */
 void udp_echoserver_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, struct ip_addr *addr, u16_t port)
 {
-  char * incoming_msg = (char *)p->payload;
-  if(incoming_msg[0] == 'c')
-  {
-      GPIO_ToggleBits(GPIOE,LED3);
-  }
+  //pb_istream_t stream = pb_istream_from_buffer(p->payload,p->len;
+    pb_istream_t stream = pb_istream_from_buffer(p->payload, p->len);
+    
+    const pb_field_t *type = decode_command_type(&stream);
+    bool status = false;
+    
+    if (type == PGAGainCommand_fields)
+    {
+        PGAGainCommand msg = {};
+        status = decode_command_contents(&stream, PGAGainCommand_fields, &msg);
+        //printf("Got MsgType1: %d\n", msg.value);
+    }
+    else if (type == LEDCommand_fields)
+    {
+        LEDCommand msg = {};
+        status = decode_command_contents(&stream, LEDCommand_fields, &msg);
+        GPIO_ToggleBits(GPIOE,LED3);
+    }
+    
+    if (!status)
+    {
+        //printf("Decode failed: %s\n", PB_GET_ERROR(&stream));
+    }
+    
   /* Connect to the remote client */
   udp_connect(upcb, addr, UDP_CLIENT_COMMAND_PORT);
     
