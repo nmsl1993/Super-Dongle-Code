@@ -47,7 +47,7 @@ CFLAGS += -Ilibs/Ethernet -Ilibs/STM32F4x7_ETH_Driver/src -Ilibs/STM32F4x7_ETH_D
 
 ELFFLAGS = -mcpu=cortex-m4 -mthumb -g -nostartfiles -Wl,-Map=$(PROJ_NAME).map -O0 -Wl,--gc-sections
 SRCS = startup_stm32f4xx.c stm32f4xx_syscfg.c mem.c tcp.c err.c randm.c mib_structs.c tcp_in.c stm32f4xx_usart.c slipif.c memp.c autoip.c
-SRCS += ip_frag.c msg_out.c netbuf.c tcpip.c stm32f4xx_dac.c asn1_dec.c lcp.c vj.c fs.c  stm32f4x7_eth.c
+SRCS += ip_frag.c msg_out.c netbuf.c tcpip.c stm32f4xx_dac.c asn1_dec.c lcp.c vj.c stm32f4x7_eth.c
 SRCS += sys.c netconf.c mib2.c stm32f4xx_it.c netdb.c init.c stm32f4xx_adc.c stm32f4x7_eth_bsp.c  ethernetif.c chpms.c etharp.c 
 SRCS += ip_addr.c  magic.c  pbuf.c stats.c stm32f4xx_rcc.c inet_chksum.c
 SRCS += inet.c msg_in.c netif.c asn1_enc.c fsm.c api_msg.c chap.c stm32f4xx_gpio.c md5.c system_stm32f4xx.c syscalls.c sockets.c main.c
