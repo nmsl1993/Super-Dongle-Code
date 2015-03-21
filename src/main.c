@@ -12,7 +12,7 @@
 #include "udp_echoserver.h"
 
 #define SYSTEMTICK_PERIOD_MS  10
-#define BUFFERSIZE 300  // I+Q 200KHz x2 HT/TC at 1KHz
+
 #define ADC_CDR_ADDRESS    ((uint32_t)0x40012308)
 RCC_ClocksTypeDef RCC_Clocks;
 

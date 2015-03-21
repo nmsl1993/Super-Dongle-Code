@@ -13,6 +13,10 @@
 #include <stdbool.h>
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
+
+#define SINGLE_CHANNEL_BUFFERSIZE 128
+#define BUFFERSIZE 3*SINGLE_CHANNEL_BUFFERSIZE 
+
 #define LED1 GPIO_Pin_9
 #define LED2 GPIO_Pin_11
 #define LED3 GPIO_Pin_13

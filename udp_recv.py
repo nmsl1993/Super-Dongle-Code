@@ -2,7 +2,9 @@ import socket, time, struct, binascii, mutex
 import numpy, scipy
 import threading
 import matplotlib.pyplot as plt
-UDP_PAYLOAD_SIZE=650
+
+CHANNEL_DEPTH = 128
+UDP_PAYLOAD_SIZE = 818 #Derived from wireshark.
 UDP_IP="" #This means all interfaces?
 UDP_PORT=8899
 
@@ -28,7 +30,7 @@ class UDPThread(threading.Thread):
 udpthread = UDPThread()
 udpthread.start()
 plt.ion()
-x=numpy.arange(0,100)
+x=numpy.arange(0,CHANNEL_DEPTH)
 y=x
 fig = plt.figure()
 #fig.legend(loc='center right')
@@ -38,7 +40,7 @@ plt.ylabel("Amplitude")
 
 
 ax = fig.add_subplot(111)
-ax.set_xlim((0,100))
+ax.set_xlim((0,CHANNEL_DEPTH))
 ax.set_ylim((0,4100))
 #line1,line2,line3 = ax.plot(x, y, 'r-',label='ADC1',x,y,'b-',label='ADC2',x,y,'g-',label='ADC3') # Returns a tuple of line objects, thus the comma
 line1,line2,line3 = ax.plot(x, y, 'r-',x,y,'b-',x,y,'g-') # Returns a tuple of line objects, thus the comma
@@ -56,7 +58,9 @@ while(1):
     print 'Connected by:', addr, 'bufsize', len(data), 'Recieved', udpthread.packet_counter, ' packets. ', float(udpthread.packet_counter)/(time.time() - start_time), ' per second'
     #print binascii.hexlify(data)
     #print binascii.hexlify(data)[1200:]
-    nd = numpy.asarray(struct.unpack("300H50x",data)) #300 16bit unsigneds, followed by 50 junk bits
+    decode_string = str(CHANNEL_DEPTH*3) + 'H' + str(UDP_PAYLOAD_SIZE - CHANNEL_DEPTH*2*3) + 'x'
+    print decode_string
+    nd = numpy.asarray(struct.unpack(decode_string,data)) #300 16bit unsigneds, followed by 50 junk bits
     print nd
 
 
