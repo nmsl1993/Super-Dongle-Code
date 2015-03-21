@@ -9,10 +9,6 @@ ST_FLASH=st-flash
 CC=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 
-#CFLAGS  = -g -O0 -Wall -Tstm32_flash.ld 
-#CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork
-#CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-
 ###################################################
 
 
@@ -34,10 +30,17 @@ vpath %.c libs/STM32F4x7_ETH_Driver/src/api
 
 ARM_GCC_LINK_DIR=linker
 ARM_GCC_LD=arm-gcc-link.ld
+
 PBUF_NAME = message
 OBJDIR = build/
+LIBDIR = libs
+ARM_MATH_LIB = arm_cortexM4lf_math.a
 ROOT=$(shell pwd)
+
 CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
+CFLAGS += -mlittle-endian -mthumb-interwork
+CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+
 
 CFLAGS += -I. -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip  -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
 CFLAGS += -Ilibs/STM32F4x7_ETH_Driver/src/netif -Ilibs/STM32F4x7_ETH_Driver/inc -Ilibs/STM32F4xx_StdPeriph_Driver/inc -Ilibs/STM32F4x7_ETH_Driver/src/netif/ppp 
@@ -62,13 +65,14 @@ SRCS += $(PBUF_NAME).pb.c
 SRCS += startup_stm32f4xx.c
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
+
 ###################################################
 #--specs=rdimon.specs -lgcc -lc -lm -lrdimon
 .PHONY: proj
 
 all: proj
 $(OBJS):$(OBJDIR)%.o : %.c
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ -L$(LIBDIR) -l$(ARM_MATH_LIB)
 
 udp_echoserver.o : $(PBUF_NAME).pb.c
 
@@ -82,7 +86,7 @@ proj: 	$(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(OBJS)
 	@echo $(SRCS)
-	$(CC) $(ELFFLAGS) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^
+	$(CC) $(ELFFLAGS) -L$(LIBS) -l$(ARM_MATH_LIB) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 
