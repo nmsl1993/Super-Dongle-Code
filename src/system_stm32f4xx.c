@@ -269,85 +269,21 @@
   * @{
   */
 
-/**
-  * @}
-  */
 
-/** @addtogroup STM32F4xx_System_Private_Defines
-  * @{
-  */
-
-/************************* Miscellaneous Configuration ************************/
-/*!< Uncomment the following line if you need to use external SRAM or SDRAM mounted
-     on STM324xG_EVAL/STM324x7I_EVAL/STM324x9I_EVAL boards as data memory  */     
-#if defined (STM32F40_41xxx) || defined (STM32F427_437xx) || defined (STM32F429_439xx)
-/* #define DATA_IN_ExtSRAM */
-#endif /* STM32F40_41xxx || STM32F427_437x || STM32F429_439xx */
-
-#if defined (STM32F427_437xx) || defined (STM32F429_439xx)
-/* #define DATA_IN_ExtSDRAM */
-#endif /* STM32F427_437x || STM32F429_439xx */ 
-
-#if defined (STM32F411xE)    
-/*!< Uncomment the following line if you need to clock the STM32F411xE by HSE Bypass
-     through STLINK MCO pin of STM32F103 microcontroller. The frequency cannot be changed
-     and is fixed at 8 MHz. 
-     Hardware configuration needed for Nucleo Board:
-     – SB54, SB55 OFF
-     – R35 removed
-     – SB16, SB50 ON */
-/* #define USE_HSE_BYPASS */
-
-#if defined (USE_HSE_BYPASS)     
-#define HSE_BYPASS_INPUT_FREQUENCY   8000000
-#endif /* USE_HSE_BYPASS */    
-#endif /* STM32F411xE */
-    
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
-/* #define VECT_TAB_SRAM */
 #define VECT_TAB_OFFSET  0x00 /*!< Vector Table base offset field. 
                                    This value must be a multiple of 0x200. */
 /******************************************************************************/
 
 /************************* PLL Parameters *************************************/
-#if defined (STM32F40_41xxx) || defined (STM32F427_437xx) || defined (STM32F429_439xx) || defined (STM32F401xx)
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
-#define PLL_M      25
-#else /* STM32F411xE */
-#if defined (USE_HSE_BYPASS)
-#define PLL_M      8    
-#else /* STM32F411xE */   
-#define PLL_M      16
-#endif /* USE_HSE_BYPASS */
-#endif /* STM32F40_41xxx || STM32F427_437xx || STM32F429_439xx || STM32F401xx */  
+#define PLL_M      8
+#define PLL_N      336
+
+/* SYSCLK = PLL_VCO / PLL_P */
+#define PLL_P      2
 
 /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ */
 #define PLL_Q      7
-
-#if defined (STM32F40_41xxx)
-#define PLL_N      336
-/* SYSCLK = PLL_VCO / PLL_P */
-#define PLL_P      2
-#endif /* STM32F40_41xxx */
-
-#if defined (STM32F427_437xx) || defined (STM32F429_439xx)
-#define PLL_N      360
-/* SYSCLK = PLL_VCO / PLL_P */
-#define PLL_P      2
-#endif /* STM32F427_437x || STM32F429_439xx */
-
-#if defined (STM32F401xx)
-#define PLL_N      336
-/* SYSCLK = PLL_VCO / PLL_P */
-#define PLL_P      4
-#endif /* STM32F401xx */
-
-#if defined (STM32F411xE)
-#define PLL_N      400
-/* SYSCLK = PLL_VCO / PLL_P */
-#define PLL_P      4   
-#endif /* STM32F411xx */
 
 /******************************************************************************/
 
@@ -367,22 +303,7 @@
   * @{
   */
 
-#if defined (STM32F40_41xxx)
   uint32_t SystemCoreClock = 168000000;
-#endif /* STM32F40_41xxx */
-
-#if defined (STM32F427_437xx) || defined (STM32F429_439xx)
-  uint32_t SystemCoreClock = 180000000;
-#endif /* STM32F427_437x || STM32F429_439xx */
-
-#if defined (STM32F401xx)
-  uint32_t SystemCoreClock = 84000000;
-#endif /* STM32F401xx */
-
-#if defined (STM32F411xE)
-  uint32_t SystemCoreClock = 100000000;
-#endif /* STM32F401xx */
-
 __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
 /**

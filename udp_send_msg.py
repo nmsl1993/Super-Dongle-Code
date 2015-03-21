@@ -8,7 +8,7 @@ print "UDP target IP:", UDP_IP
 print "UDP target port", UDP_PORT
 
 com =  message_pb2.Command()
-com.LEDCommand.on = True
+com.LEDCommand.on = False
 
 print com
 
