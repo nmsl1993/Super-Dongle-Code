@@ -37,8 +37,6 @@ LIBDIR = libs
 ARM_MATH_LIB = arm_cortexM4lf_math
 ROOT=$(shell pwd)
 
-#CFLAGS = --specs=rdimon.specs   -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group
-#CFLAGS = -nostdlib
 CFLAGS += -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
 CFLAGS += -I. -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip  -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
 CFLAGS += -Ilibs/STM32F4x7_ETH_Driver/src/netif -Ilibs/STM32F4x7_ETH_Driver/inc -Ilibs/STM32F4xx_StdPeriph_Driver/inc -Ilibs/STM32F4x7_ETH_Driver/src/netif/ppp 

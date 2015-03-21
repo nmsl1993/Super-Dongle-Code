@@ -38,3 +38,5 @@
 #Eclipse
 .cproject
 .project
+#Hate
+octave-workspace
