@@ -7,6 +7,7 @@
 #include "stm32f4xx_conf.h"
 #include "netconf.h"
 #include "main.h"
+#include "dsp.h"
 #include "pbuf.h"
 #include "ip_addr.h"
 #include "udp_echoserver.h"
@@ -291,6 +292,7 @@ int main(void)
 	GPIO_SetBits(GPIOE,PGA0);
 	GPIO_SetBits(GPIOE,PGA1);
 
+//	init_rfft();
 	NVIC_Configuration();
 	TIM2_Configuration();
 	DMA_Configuration();
@@ -306,9 +308,6 @@ int main(void)
 	// Initilaize the LwIP stack
 	LwIP_Init();
 	udp_echoserver_init();
-	//Httpd init
-	//httpd_init();
-
     // create a TCP process control block
 	// create a UDP process control block 
 	upcb = udp_new();

@@ -1,23 +1,16 @@
 #include "main.h"
-#define ARM_MATH_CM4 
 #include "arm_math.h" 
 #include "arm_const_structs.h"
  
-#define FFT_INPUT_LENGTH 2048 
+ 
  
 /* ------------------------------------------------------------------- 
+
 * External Input and Output buffer Declarations for FFT Bin Example 
-* ------------------------------------------------------------------- */ 
-extern float32_t rfft_input[FFT_INPUT_LENGTH]; 
-static float32_t rfft_output[FFT_INPUT_LENGTH/2]; 
- 
-/* ------------------------------------------------------------------ 
-* Global variables for FFT Bin Example 
-* ------------------------------------------------------------------- */ 
-uint32_t fftSize = 1024; 
-uint32_t ifftFlag = 0; 
-uint32_t doBitReverse = 1; 
- 
+* ------------------------------------------------------------------- */
+static float32_t rfft_input[SINGLE_CHANNEL_BUFFERSIZE];
+static float32_t rfft_output[SINGLE_CHANNEL_BUFFERSIZE]; 
+
 
 static arm_rfft_fast_instance_f32 s;
 /* ---------------------------------------------------------------------- 
@@ -26,11 +19,15 @@ static arm_rfft_fast_instance_f32 s;
  
 void init_rfft()
 {
-arm_rfft_fast_init_f32(&s, FFT_INPUT_LENGTH);
+arm_rfft_fast_init_f32(&s, SINGLE_CHANNEL_BUFFERSIZE);
 }
-void do_RFFT() 
+void do_RFFT(uint16_t * fixed_precision_input) 
 { 
-   
+  unsigned int k;
+  for(k = 0; k < SINGLE_CHANNEL_BUFFERSIZE; k++)
+  {
+    rfft_input[k] = (float32_t)fixed_precision_input[k]; //Convert uint16_ts to floats.
+  }
   arm_status status; 
    
   status = ARM_MATH_SUCCESS; 

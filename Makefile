@@ -34,20 +34,27 @@ ARM_GCC_LD=arm-gcc-link.ld
 PBUF_NAME = message
 OBJDIR = build/
 LIBDIR = libs
-ARM_MATH_LIB = arm_cortexM4lf_math.a
+ARM_MATH_LIB = arm_cortexM4lf_math
 ROOT=$(shell pwd)
 
-CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
-CFLAGS += -mlittle-endian -mthumb-interwork
-CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
-
+#CFLAGS = --specs=rdimon.specs   -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group
+#CFLAGS = -nostdlib
+CFLAGS += -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
 CFLAGS += -I. -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip  -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
 CFLAGS += -Ilibs/STM32F4x7_ETH_Driver/src/netif -Ilibs/STM32F4x7_ETH_Driver/inc -Ilibs/STM32F4xx_StdPeriph_Driver/inc -Ilibs/STM32F4x7_ETH_Driver/src/netif/ppp 
 CFLAGS += -Ilibs/Ethernet -Ilibs/STM32F4x7_ETH_Driver/src -Ilibs/STM32F4x7_ETH_Driver/inc/netif -Ilibs/nanopb
 CFLAGS += -Ilibs/CMSIS/Include -Ilibs/CMSIS/Device/ST/STM32F4xx/Include
+
+#HARD FLOAT STUFF
+FLOAT_ABI=hard
+CFLAGS += -mfloat-abi=$(FLOAT_ABI) -mfpu=fpv4-sp-d16
+CFLAGS += -fsingle-precision-constant -Wdouble-promotion
+CFLAGS += -DARM_MATH_CM4 -D__FPU_PRESENT -D__USE_CMSIS
+
 #SRCS += lib/startup_stm32f4xx.s # add startup file to build
 
-ELFFLAGS = -mcpu=cortex-m4 -mthumb -g -nostartfiles -Wl,-Map=$(PROJ_NAME).map -O0 -Wl,--gc-sections
+ELFFLAGS = -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -mfloat-abi=$(FLOAT_ABI) -mfpu=fpv4-sp-d16  -g -nostartfiles --specs=rdimon.specs -Wl,-Map=$(PROJ_NAME).map -O0 -Wl,--gc-sections -Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
+#ELFFLAGS = -mcpu=cortex-m4 -mthumb -g -nostartfiles -Wl,-Map=$(PROJ_NAME).map,-O0,--gc-sections,
 SRCS =  stm32f4xx_syscfg.c mem.c tcp.c err.c randm.c mib_structs.c tcp_in.c stm32f4xx_usart.c slipif.c memp.c autoip.c
 SRCS += ip_frag.c msg_out.c netbuf.c tcpip.c stm32f4xx_dac.c asn1_dec.c lcp.c vj.c stm32f4x7_eth.c
 SRCS += sys.c netconf.c mib2.c stm32f4xx_it.c netdb.c init.c stm32f4xx_adc.c stm32f4x7_eth_bsp.c  ethernetif.c chpms.c etharp.c 
@@ -68,12 +75,11 @@ OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 
 ###################################################
-#--specs=rdimon.specs -lgcc -lc -lm -lrdimon
 .PHONY: proj
 
 all: proj
 $(OBJS):$(OBJDIR)%.o : %.c
-	$(CC) $(CFLAGS) -o $@ $^ -L$(LIBDIR) -l$(ARM_MATH_LIB)
+	$(CC) $(CFLAGS) -L$(LIBDIR) -l$(ARM_MATH_LIB) -o $@ $^ 
 
 udp_echoserver.o : $(PBUF_NAME).pb.c
 
@@ -86,8 +92,7 @@ flash: $(PROJ_NAME).elf
 proj: 	$(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(OBJS)
-	@echo $(SRCS)
-	$(CC) $(ELFFLAGS) -L$(LIBS) -l$(ARM_MATH_LIB) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^
+	$(CC) $(ELFFLAGS) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 
