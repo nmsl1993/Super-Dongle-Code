@@ -51,7 +51,7 @@ CFLAGS += -DARM_MATH_CM4 -D__FPU_PRESENT -D__USE_CMSIS
 
 #SRCS += lib/startup_stm32f4xx.s # add startup file to build
 
-ELFFLAGS = -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -mfloat-abi=$(FLOAT_ABI) -mfpu=fpv4-sp-d16  -g -nostartfiles --specs=rdimon.specs -Wl,-Map=$(PROJ_NAME).map -O0 -Wl,--gc-sections -Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
+ELFFLAGS = -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -mfloat-abi=$(FLOAT_ABI) -mfpu=fpv4-sp-d16  -g -nostartfiles --specs=rdimon.specs -Wl,-Map=$(PROJ_NAME).map -O0 -Wl,--gc-sections #-Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
 #ELFFLAGS = -mcpu=cortex-m4 -mthumb -g -nostartfiles -Wl,-Map=$(PROJ_NAME).map,-O0,--gc-sections,
 SRCS =  stm32f4xx_syscfg.c mem.c tcp.c err.c randm.c mib_structs.c tcp_in.c stm32f4xx_usart.c slipif.c memp.c autoip.c
 SRCS += ip_frag.c msg_out.c netbuf.c tcpip.c stm32f4xx_dac.c asn1_dec.c lcp.c vj.c stm32f4x7_eth.c
@@ -90,7 +90,7 @@ flash: $(PROJ_NAME).elf
 proj: 	$(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(OBJS)
-	$(CC) $(ELFFLAGS) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^
+	$(CC) $(ELFFLAGS) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^ -Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 

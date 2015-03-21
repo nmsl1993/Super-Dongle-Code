@@ -292,7 +292,7 @@ int main(void)
 	GPIO_SetBits(GPIOE,PGA0);
 	GPIO_SetBits(GPIOE,PGA1);
 
-//	init_rfft();
+	init_rfft();
 	NVIC_Configuration();
 	TIM2_Configuration();
 	DMA_Configuration();
