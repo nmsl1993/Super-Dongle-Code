@@ -41,7 +41,6 @@ CFLAGS = -mcpu=cortex-m4 -mthumb -Wall -w -ffunction-sections -g -O0 -c -DSTM32F
 CFLAGS += -mlittle-endian -mthumb-interwork
 CFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 
-
 CFLAGS += -I. -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip  -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
 CFLAGS += -Ilibs/STM32F4x7_ETH_Driver/src/netif -Ilibs/STM32F4x7_ETH_Driver/inc -Ilibs/STM32F4xx_StdPeriph_Driver/inc -Ilibs/STM32F4x7_ETH_Driver/src/netif/ppp 
 CFLAGS += -Ilibs/Ethernet -Ilibs/STM32F4x7_ETH_Driver/src -Ilibs/STM32F4x7_ETH_Driver/inc/netif -Ilibs/nanopb
@@ -63,6 +62,8 @@ SRCS += pb_encode.c pb_decode.c pb_common.c udp_echoserver.c
 SRCS += $(PBUF_NAME).pb.c
 
 SRCS += startup_stm32f4xx.c
+
+SRCS += dsp.c 
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 
