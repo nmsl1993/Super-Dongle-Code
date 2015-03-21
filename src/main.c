@@ -22,6 +22,8 @@ __IO uint16_t ADCTripleConvertedValuesShadow[BUFFERSIZE]; // Filled as pairs ADC
 __IO uint32_t LocalTime = 0; /* this variable is used to create a time reference incremented by 10ms */
 
 volatile uint8_t doADCTransfer=0; //0 indicates don't do transfer, 1 indicates transfer ADCTripleConvertedValues, 2 indicates transfer ADCTripleConvertedValuesShadow
+volatile uint8_t doSearch=0; //0 indicates don't do transfer, 1 indicates transfer ADCTripleConvertedValues, 2 indicates transfer ADCTripleConvertedValuesShadow
+
 uint32_t timingdelay;
 struct udp_pcb *upcb; //Used for output streaming of data.
 struct tcp_pcb *tpcb;
@@ -219,7 +221,6 @@ void DMA2_Stream0_IRQHandler(void) // Called at 1 KHz for 200 KHz sample rate, L
             doADCTransfer = 2; //DMA writing to ADCTripleConvertedValuesShadow, send ADCTripleConvertedValues via Ethernet
 		}
 
-		GPIO_ResetBits(GPIOE, LED4);
 	}
 
 	/* Test on DMA Stream Transfer Complete interrupt */
@@ -227,7 +228,16 @@ void DMA2_Stream0_IRQHandler(void) // Called at 1 KHz for 200 KHz sample rate, L
 	{
 		/* Clear DMA Stream Transfer Complete interrupt pending bit */
 		DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_TCIF0);
+		if(DMA_GetCurrentMemoryTarget(DMA2_Stream0) == 0)
+		{
+			doSearch = 1; //DMA writing to ADCTripleConvertedValues, send ADCTripleConvertedValuesShadow via Ethernet
 
+
+		}
+		else if(DMA_GetCurrentMemoryTarget(DMA2_Stream0) == 1)
+		{
+            doSearch = 2; //DMA writing to ADCTripleConvertedValuesShadow, send ADCTripleConvertedValues via Ethernet
+		}
 
 
 	}
@@ -339,6 +349,16 @@ int main(void)
 			udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
 
 			doADCTransfer = 0;
+        }
+        if(doSearch == 1)
+        {
+        	//do_RFFT(ADCTripleConvertedValuesShadow);
+        	doSearch = 0;
+        }
+        else if(doSearch == 2)
+        {
+        	do_RFFT(ADCTripleConvertedValues);
+        	doSearch = 0;
         }
 		// check if any packet received
 		if (ETH_CheckFrameReceived()) {
