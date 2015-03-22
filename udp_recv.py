@@ -38,6 +38,12 @@ plt.title("ADC Data from STM32F4 Sampling @ 200Khz")
 plt.xlabel("Sample (n)")
 plt.ylabel("Amplitude")
 
+def on_key(event):
+        print('you pressed', event.key, event.xdata, event.ydata)
+        if(event.key == 'x'):
+            print("exiting...")
+            udpthread.join()
+cid = fig.canvas.mpl_connect('key_press_event', on_key)
 
 ax = fig.add_subplot(111)
 ax.set_xlim((0,CHANNEL_DEPTH))
@@ -59,9 +65,9 @@ while(1):
     #print binascii.hexlify(data)
     #print binascii.hexlify(data)[1200:]
     decode_string = str(CHANNEL_DEPTH*3) + 'H' + str(UDP_PAYLOAD_SIZE - CHANNEL_DEPTH*2*3) + 'x'
-    print decode_string
+    #print decode_string
     nd = numpy.asarray(struct.unpack(decode_string,data)) #300 16bit unsigneds, followed by 50 junk bits
-    print nd
+    #print nd
 
 
     transducer0 = nd[0::3]
