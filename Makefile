@@ -14,9 +14,18 @@ OBJCOPY=arm-none-eabi-objcopy
 
 
 vpath %.c src
+vpath %.c libs/CMSIS/DSP_Lib/Source/CommonTables
+vpath %.c libs/CMSIS/DSP_Lib/Source/TransformFunctions
+vpath %.S libs/CMSIS/DSP_Lib/Source/TransformFunctions
+
+
+
 vpath %.c libs/nanopb
 vpath %.c libs/syscalls
 vpath %.c boot
+vpath %.s boot
+
+
 vpath %.c libs/STM32F4xx_StdPeriph_Driver/src
 vpath %.c libs/Ethernet/source
 vpath %.c libs/STM32F4x7_ETH_Driver
@@ -66,9 +75,12 @@ SRCS += stm32f4xx_dma.c udp_echoserver.c
 SRCS += pb_encode.c pb_decode.c pb_common.c udp_echoserver.c
 SRCS += $(PBUF_NAME).pb.c
 
+#SRCS += startup_stm32f40xx.s
 SRCS += startup_stm32f4xx.c
 
 SRCS += dsp.c 
+MATH_SRCS = arm_common_tables.c arm_bitreversal.c arm_cfft_f32.c arm_cfft_radix8_f32.c arm_bitreversal2.S
+SRCS += $(MATH_SRCS)
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 
@@ -77,7 +89,8 @@ OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 all: proj
 $(OBJS):$(OBJDIR)%.o : %.c
-	$(CC) $(CFLAGS) -L$(LIBDIR) -l$(ARM_MATH_LIB) -o $@ $^ 
+#	$(CC) $(CFLAGS) -L$(LIBDIR) -l$(ARM_MATH_LIB) -o $@ $^ 
+	$(CC) $(CFLAGS) -o $@ $^ 
 
 udp_echoserver.o : $(PBUF_NAME).pb.c
 
@@ -90,7 +103,8 @@ flash: $(PROJ_NAME).elf
 proj: 	$(PROJ_NAME).elf
 
 $(PROJ_NAME).elf: $(OBJS)
-	$(CC) $(ELFFLAGS) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^ -Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
+#	$(CC) $(ELFFLAGS) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^ -Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
+	$(CC) $(ELFFLAGS) -L$(ARM_GCC_LINK_DIR) -Wl,-T$(ARM_GCC_LINK_DIR)/$(ARM_GCC_LD) -g -o $@  $^ -Wl,--start-group -lgcc -lc -lm -lrdimon -Wl,--end-group
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 

@@ -54,7 +54,7 @@
 	.cpu cortex-m4
 	.fpu softvfp
 	#define THUMB .thumb
-	#define CODESECT .section text
+	#define CODESECT .section .text
 	#define EXPORT .global
 	#define PROC :
 	#define LABEL :
