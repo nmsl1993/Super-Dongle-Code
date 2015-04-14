@@ -105,13 +105,13 @@ void ADC_Configuration(void)
 	ADC_Init(ADC3, &ADC_InitStructure); // Mirror on ADC3
 
 	/* ADC1 regular channel 10 configuration */
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_10, 1, ADC_SampleTime_15Cycles); // PC1
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_13, 1, ADC_SampleTime_15Cycles); // PC1
 
 	/* ADC2 regular channel 12 configuration */
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_12, 1, ADC_SampleTime_15Cycles); // PC2
 
 	/* ADC3 regular channel 13 configuration */
-	ADC_RegularChannelConfig(ADC3, ADC_Channel_13, 1, ADC_SampleTime_15Cycles); // PC3
+	ADC_RegularChannelConfig(ADC3, ADC_Channel_10, 1, ADC_SampleTime_15Cycles); // PC3
 	/* Enable DMA request after last transfer (Multi-ADC mode)  */
 	ADC_MultiModeDMARequestAfterLastTransferCmd(ENABLE);
 
@@ -302,7 +302,7 @@ int main(void)
 	GPIO_SetBits(GPIOE,PGA0);
 	GPIO_SetBits(GPIOE,PGA1);
 
-	init_rfft();
+	//init_rfft();
 	NVIC_Configuration();
 	TIM2_Configuration();
 	DMA_Configuration();
@@ -324,7 +324,9 @@ int main(void)
 	// configure destination IP address and port 
 	IP4_ADDR(&DestIPaddr, DEST_IP_ADDR0, DEST_IP_ADDR1, DEST_IP_ADDR2, DEST_IP_ADDR3 );
 	/* Allocate pbuf for streamed data */
-	p = pbuf_alloc(PBUF_TRANSPORT, sizeof(ADCTripleConvertedValues), PBUF_RAM);
+//	p = pbuf_alloc(PBUF_TRANSPORT, sizeof(ADCTripleConvertedValues), PBUF_RAM);
+
+	p = pbuf_alloc(PBUF_RAM, sizeof(ADCTripleConvertedValues), PBUF_RAM);
 
     /* Start ADC1 Software Conversion */
 	ADC_SoftwareStartConv(ADC1);
@@ -339,6 +341,7 @@ int main(void)
 		if(doADCTransfer == 1 && p != NULL)
 		{
 			memcpy(p->payload,ADCTripleConvertedValuesShadow,sizeof(ADCTripleConvertedValuesShadow));
+			//p->ref = ADCTripleConvertedValuesShadow;
 			udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
 
 			doADCTransfer = 0;
@@ -346,13 +349,15 @@ int main(void)
         else if(doADCTransfer == 2 && p != NULL)
         {
 			memcpy(p->payload,ADCTripleConvertedValues,sizeof(ADCTripleConvertedValues));
-			udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
+			//p->ref = ADCTripleConvertedValues;
+
+			//udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
 
 			doADCTransfer = 0;
         }
         if(doSearch == 1)
         {
-        	//do_RFFT(ADCTripleConvertedValuesShadow);
+        	do_RFFT(ADCTripleConvertedValuesShadow);
         	doSearch = 0;
         }
         else if(doSearch == 2)

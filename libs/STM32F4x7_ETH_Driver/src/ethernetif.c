@@ -146,6 +146,8 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
   /* copy frame from pbufs to driver buffers */
   for(q = p; q != NULL; q = q->next) 
   {
+
+    //__aeabi_memcpy4((u8_t*)&buffer[framelength], q->payload, q->len);
     memcpy((u8_t*)&buffer[framelength], q->payload, q->len);
 	framelength = framelength + q->len;
   }
@@ -195,6 +197,8 @@ static struct pbuf * low_level_input(struct netif *netif)
   {
     for (q = p; q != NULL; q = q->next)
     {
+
+      //__aeabi_memcpy4((u8_t*)q->payload, (u8_t*)&buffer[l], q->len);
       memcpy((u8_t*)q->payload, (u8_t*)&buffer[l], q->len);
       l = l + q->len;
     }    

@@ -14,9 +14,13 @@ OBJCOPY=arm-none-eabi-objcopy
 
 
 vpath %.c src
+
+
 vpath %.c libs/CMSIS/DSP_Lib/Source/CommonTables
 vpath %.c libs/CMSIS/DSP_Lib/Source/TransformFunctions
 vpath %.S libs/CMSIS/DSP_Lib/Source/TransformFunctions
+vpath %.c libs/CMSIS/DSP_Lib/Source/ComplexMathFunctions
+vpath %.c libs/CMSIS/DSP_Lib/Source/StatisticsFunctions
 
 
 
@@ -39,14 +43,14 @@ vpath %.c libs/STM32F4x7_ETH_Driver/src/api
 
 ARM_GCC_LINK_DIR=linker
 ARM_GCC_LD=arm-gcc-link.ld
-
+OPT_LEVEL = 3
 PBUF_NAME = message
 OBJDIR = build/
 LIBDIR = libs
 ARM_MATH_LIB = arm_cortexM4lf_math
 ROOT=$(shell pwd)
 
-CFLAGS += -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -Wall -w -ffunction-sections -g -O0 -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
+CFLAGS += -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -Wall -w -ffunction-sections -g -O$(OPT_LEVEL) -c -DSTM32F407VG -DSTM32F4XX -DUSE_STDPERIPH_DRIVER -D__FPU_USED -DHSE_VALUE=8000000
 CFLAGS += -I. -Iinc -Ilibs/cmsis/cmsis_boot -Ilibs/STM32F4x7_ETH_Driver -Ilibs/STM32F4x7_ETH_Driver/inc/lwip  -Ilibs/Ethernet/include -Ilibs/STM32F4x7_ETH_Driver/inc/lwip/arch
 CFLAGS += -Ilibs/STM32F4x7_ETH_Driver/src/netif -Ilibs/STM32F4x7_ETH_Driver/inc -Ilibs/STM32F4xx_StdPeriph_Driver/inc -Ilibs/STM32F4x7_ETH_Driver/src/netif/ppp 
 CFLAGS += -Ilibs/Ethernet -Ilibs/STM32F4x7_ETH_Driver/src -Ilibs/STM32F4x7_ETH_Driver/inc/netif -Ilibs/nanopb
@@ -60,8 +64,8 @@ CFLAGS += -DARM_MATH_CM4 -D__FPU_PRESENT -D__USE_CMSIS
 
 #SRCS += lib/startup_stm32f4xx.s # add startup file to build
 
-ELFFLAGS = -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -mfloat-abi=$(FLOAT_ABI) -mfpu=fpv4-sp-d16  -g -nostartfiles --specs=rdimon.specs -Wl,-Map=$(PROJ_NAME).map -O0 -Wl,--gc-sections #-Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
-#ELFFLAGS = -mcpu=cortex-m4 -mthumb -g -nostartfiles -Wl,-Map=$(PROJ_NAME).map,-O0,--gc-sections,
+ELFFLAGS = -mcpu=cortex-m4 -mthumb -mthumb-interwork -mlittle-endian -mfloat-abi=$(FLOAT_ABI) -mfpu=fpv4-sp-d16  -g -nostartfiles --specs=rdimon.specs -Wl,-Map=$(PROJ_NAME).map -O$(OPT_LEVEL) -Wl,--gc-sections #-Wl,--start-group -lgcc -lc -lm -lrdimon -L$(LIBDIR) -l$(ARM_MATH_LIB) -Wl,--end-group
+#ELFFLAGS = -mcpu=cortex-m4 -mthumb -g -nostartfiles -Wl,-Map=$(PROJ_NAME).map,-O$(OPT_LEVEL),--gc-sections,
 SRCS =  stm32f4xx_syscfg.c mem.c tcp.c err.c randm.c mib_structs.c tcp_in.c stm32f4xx_usart.c slipif.c memp.c autoip.c
 SRCS += ip_frag.c msg_out.c netbuf.c tcpip.c stm32f4xx_dac.c asn1_dec.c lcp.c vj.c stm32f4x7_eth.c
 SRCS += sys.c netconf.c mib2.c stm32f4xx_it.c netdb.c init.c stm32f4xx_adc.c stm32f4x7_eth_bsp.c  ethernetif.c chpms.c etharp.c 
@@ -80,6 +84,7 @@ SRCS += startup_stm32f4xx.c
 
 SRCS += dsp.c 
 MATH_SRCS = arm_common_tables.c arm_bitreversal.c arm_cfft_f32.c arm_cfft_radix8_f32.c arm_bitreversal2.S
+MATH_SRCS += arm_cmplx_mag_f32.c arm_max_f32.c arm_rfft_fast_init_f32.c arm_rfft_fast_f32.c
 SRCS += $(MATH_SRCS)
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
