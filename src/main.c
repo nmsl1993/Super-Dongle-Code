@@ -333,6 +333,7 @@ int main(void)
 
 	do_blink = 1; //Indicates that initialization is done
 	uint32_t t = 0;
+	float freqs[3];
 	while (1)
 	{
 		GPIO_ToggleBits(GPIOE,LED2);
@@ -357,12 +358,15 @@ int main(void)
         }
         if(doSearch == 1)
         {
-        	do_RFFT(ADCTripleConvertedValuesShadow);
+        	do_CFFT(ADCTripleConvertedValuesShadow,freqs);
+        	sendFreqs(freqs);
         	doSearch = 0;
         }
         else if(doSearch == 2)
         {
-        	do_RFFT(ADCTripleConvertedValues);
+        	do_CFFT(ADCTripleConvertedValues,freqs);
+        	sendFreqs(freqs);
+
         	doSearch = 0;
         }
 		// check if any packet received

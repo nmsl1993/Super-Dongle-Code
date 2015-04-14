@@ -10,7 +10,7 @@
 
 
 void init_rfft();
-void do_RFFT(uint16_t * fixed_precision_input) ;
+void do_CFFT(uint16_t * fixed_precision_input,float * freqs) ;
 
 #ifdef __cplusplus
 }

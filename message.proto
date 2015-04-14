@@ -20,3 +20,10 @@ message Command
     optional DataStreamCommand DataStreamCommand= 2;
     optional LEDCommand LEDCommand = 3;
 }
+
+message DSPResponse
+{
+	required float freq1 = 1;
+	required float freq2 = 2;
+	required float freq3 = 3;
+}

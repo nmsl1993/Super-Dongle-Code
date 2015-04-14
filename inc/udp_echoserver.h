@@ -32,5 +32,5 @@
 
 
 void udp_echoserver_init(void);
-
+void sendFreqs(float * freqs);
 #endif /* __MINIMAL_ECHO_H */

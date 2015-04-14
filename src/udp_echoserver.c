@@ -33,6 +33,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "pb_decode.h"
+  #include "pb_encode.h"
+
 #include "message.pb.h"
 
 
@@ -44,10 +46,14 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 void udp_echoserver_receive_callback(void *arg, struct udp_pcb *upcb, struct pbuf *p, struct ip_addr *addr, u16_t port);
+struct ip_addr DestIPaddr;
 
 /* Private functions ---------------------------------------------------------*/
+   struct udp_pcb *upcb;
+struct pbuf *proto_out;
 
-
+DSPResponse dsp_resp;
+#define PBUF_OUT_PAYLOAD_SIZE 32
 const pb_field_t* decode_command_type(pb_istream_t *stream)
 {
     pb_wire_type_t wire_type;
@@ -94,12 +100,13 @@ bool decode_command_contents(pb_istream_t *stream, const pb_field_t fields[], vo
   */
 void udp_echoserver_init(void)
 {
-   struct udp_pcb *upcb;
    err_t err;
-   
+    IP4_ADDR(&DestIPaddr, DEST_IP_ADDR0, DEST_IP_ADDR1, DEST_IP_ADDR2, DEST_IP_ADDR3 );
+
    /* Create a new UDP control block  */
    upcb = udp_new();
-   
+  proto_out = pbuf_alloc(PBUF_RAM, PBUF_OUT_PAYLOAD_SIZE, PBUF_RAM);
+
    if (upcb)
    {
      /* Bind the upcb to the UDP_PORT port */
@@ -122,7 +129,20 @@ void udp_echoserver_init(void)
      //printf("can not create pcb");
    } 
 }
+void sendFreqs(float * freqs)
+{
+  pb_ostream_t stream = pb_ostream_from_buffer(proto_out->payload,PBUF_OUT_PAYLOAD_SIZE);
 
+  dsp_resp.freq1 = freqs[0];
+  dsp_resp.freq2 = freqs[1];
+  dsp_resp.freq3 = freqs[2];
+
+  pb_encode(&stream,DSPResponse_fields,&dsp_resp);
+  int msg_len = stream.bytes_written;
+
+  udp_sendto(upcb, proto_out, &DestIPaddr, UDP_CLIENT_COMMAND_PORT );
+
+}
 /**
   * @brief This function is called when an UDP datagrm has been received on the port UDP_PORT.
   * @param arg user supplied argument (udp_pcb.recv_arg)
