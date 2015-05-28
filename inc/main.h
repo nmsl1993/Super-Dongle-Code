@@ -27,7 +27,7 @@
 
 #define DEST_IP_ADDR0   192
 #define DEST_IP_ADDR1   168
-#define DEST_IP_ADDR2   4
+#define DEST_IP_ADDR2   5
 #define DEST_IP_ADDR3   255
  
 #define UDP_SERVER_DATA_PORT    8899   //Local port for streaming data
@@ -46,7 +46,7 @@
 /*Static IP ADDRESS: IP_ADDR0.IP_ADDR1.IP_ADDR2.IP_ADDR3 */
 #define IP_ADDR0   192
 #define IP_ADDR1   168
-#define IP_ADDR2   4
+#define IP_ADDR2   5
 #define IP_ADDR3   5
    
 /*NETMASK*/
@@ -58,7 +58,7 @@
 /*Gateway Address*/
 #define GW_ADDR0   192
 #define GW_ADDR1   168
-#define GW_ADDR2   4
+#define GW_ADDR2   5
 #define GW_ADDR3   1
 
 /* MII and RMII mode selection, for STM324xG-EVAL Board(MB786) RevB ***********/
