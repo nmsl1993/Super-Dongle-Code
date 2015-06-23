@@ -4,16 +4,16 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
-#define UDP_PAYLOAD_SIZE 818
-#define UDP_PORT 8899
+#include "udp_receiver.h"
 
 int sockfd; 
 char buf[UDP_PAYLOAD_SIZE];
 
-struct sockaddr_in serv_addr, cli_addr;
+struct sockaddr_in serv_addr;
 
-void loop() {
+ 
+
+void loop(void * ) {
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(UDP_PORT);
