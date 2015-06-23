@@ -12,11 +12,11 @@
 using namespace std;
 using namespace boost;
 const int MAX_VEC_LEN = 5000;
-vector< uint16_t[3*CHANNEL_DEPTH] > vec;
-
+uint16_t vec[MAX_VEC_LEN][3*CHANNEL_DEPTH];
+int line_count = 0;
 string data("/mnt/ramdisk/pyout.csv");
 
-void tokenizeLine(const string &s, uint16_t * o)
+void tokenizeLine(const string &s, uint16_t  (&o)[3*CHANNEL_DEPTH])
 {
     typedef tokenizer<escaped_list_separator<char> > tok_t;
     tok_t tok(s);
@@ -30,13 +30,10 @@ void init()
 {
 ifstream in(data.c_str());
 if (!in.is_open()) exit(1);
-vec.reserve(MAX_VEC_LEN);
 cout << "Init..." << endl;
-int line_count = 0;
 string line;
 while(getline(in,line))
 {
-
 tokenizeLine(line,vec[line_count++]);
 }
 
@@ -49,7 +46,7 @@ int loop(char * buffer ) {
     init();
     cout << "Init done" << endl;
   }
-  if(count < vec.size())
+  if(count < line_count)
   {
   memcpy(vec[count],buffer,3*CHANNEL_DEPTH*sizeof(uint16_t));
   count++;
