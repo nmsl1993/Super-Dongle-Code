@@ -11,7 +11,7 @@ int sockfd;
 struct sockaddr_in serv_addr;
 
 
-void loop(char * buffer ) {
+int loop(char * buffer ) {
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(UDP_PORT);
@@ -26,5 +26,6 @@ void loop(char * buffer ) {
     ssize_t count=recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&src_addr, &src_addr_len);
 
   }
+  return 0;
 }
 
