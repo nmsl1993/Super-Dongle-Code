@@ -7,13 +7,11 @@
 #include "udp_receiver.h"
 
 int sockfd; 
-char buf[UDP_PAYLOAD_SIZE];
 
 struct sockaddr_in serv_addr;
 
- 
 
-void loop(void * ) {
+void loop(char * buffer ) {
   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(UDP_PORT);
@@ -25,15 +23,8 @@ void loop(void * ) {
   while (1) {
     struct sockaddr_storage src_addr;
     socklen_t src_addr_len=sizeof(src_addr);
-    ssize_t count=recvfrom(sockfd, buf, sizeof(buf), 0, (struct sockaddr*)&src_addr, &src_addr_len);
+    ssize_t count=recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)&src_addr, &src_addr_len);
 
-    // "buf" holds data received over UDP.
-    printf("RECV: %s\n", buf);
   }
 }
 
-// Just for testing.
-int main (void) {
-  loop();
-  return 0;
-}
