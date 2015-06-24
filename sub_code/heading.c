@@ -61,8 +61,8 @@ int main (void) {
     float TB_phase = atan2(TB_X_k.i,TB_X_k.r);
     float TC_phase = atan2(TC_X_k.i,TC_X_k.r);
 
-    float delta_phase_Y = phase_difference(TA_phase,TC_phase);
-    float delta_phase_X = phase_difference(TB_phase,TC_phase);
+    float delta_phase_Y = phase_difference(TC_phase,TB_phase);
+    float delta_phase_X = phase_difference(TA_phase,TB_phase);
     float heading = atan2(delta_phase_Y,delta_phase_X);
 
     printf("Index %i, Heading in degrees: %f\n",bufcount, heading*180/M_PI); 
