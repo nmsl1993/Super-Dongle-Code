@@ -23,7 +23,9 @@ void tokenizeLine(const string &s, uint16_t  (&o)[3*CHANNEL_DEPTH])
     int c = 0;
     for(tok_t::iterator j (tok.begin()); j != tok.end(); ++j)
     {
-        o[c] = (uint16_t)lexical_cast<double>(*j);
+        o[c++] = (uint16_t)lexical_cast<float>(*j);
+        //uint16_t temp = (uint16_t)lexical_cast<float>(*j);
+        //o[c] = (temp << 8) | (temp >> 8); //Put in network Endianess (big)
     }
 }
 void init()
@@ -48,9 +50,9 @@ int loop(char * buffer ) {
   }
   if(count < line_count)
   {
-  memcpy(vec[count],buffer,3*CHANNEL_DEPTH*sizeof(uint16_t));
+  memcpy(buffer,vec[count],3*CHANNEL_DEPTH*sizeof(uint16_t));
   count++;
-  return 1;
-  }
   return 0;
+  }
+  return 1;
 }
