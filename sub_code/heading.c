@@ -19,13 +19,16 @@ int main (void) {
   kiss_fft_cpx cout[CHANNEL_DEPTH/2 + 1];
 
   printf("start loop \n");
-  while(loop((char *) &spt) != 0)
+  while(loop((char *) &spt) == 0)
   {
     int i;
+    printf("DATA\n");
     for(i = 0; i < CHANNEL_DEPTH; i++)
     {
         rin[i] = (kiss_fft_scalar) spt.data[3*i]; //This defaults to float which is correct...
+        printf("%f", rin[i]);
     }
+    printf("\n");
 
     kiss_fftr(fft,rin,cout);
     cout[0].r = 0;     //Zero meaningless DC component...
