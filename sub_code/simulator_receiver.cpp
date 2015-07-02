@@ -14,7 +14,7 @@ using namespace boost;
 const int MAX_VEC_LEN = 5000;
 uint16_t vec[MAX_VEC_LEN][3*CHANNEL_DEPTH];
 int line_count = 0;
-string data("/mnt/ramdisk/pyout.csv");
+string data("pyout.csv");
 
 void tokenizeLine(const string &s, uint16_t  (&o)[3*CHANNEL_DEPTH])
 {
