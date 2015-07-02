@@ -173,7 +173,7 @@ void TIM2_Configuration(void)
 
 	/* Time base configuration */
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-	TIM_TimeBaseStructure.TIM_Period = (84000000 / 200000) - 1; // 200 KHz, from 84 MHz TIM2CLK (ie APB1 = HCLK/4, TIM2CLK = HCLK/2)
+	TIM_TimeBaseStructure.TIM_Period = (84000000 / (int) SAMPLE_RATE) - 1; // 200 KHz, from 84 MHz TIM2CLK (ie APB1 = HCLK/4, TIM2CLK = HCLK/2)
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -352,7 +352,7 @@ int main(void)
 			memcpy(p->payload,ADCTripleConvertedValues,sizeof(ADCTripleConvertedValues));
 			//p->ref = ADCTripleConvertedValues;
 
-			//udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
+			udp_sendto(upcb, p, &DestIPaddr, UDP_CLIENT_DATA_PORT );
 
 			doADCTransfer = 0;
         }
