@@ -90,18 +90,22 @@ OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 
 ###################################################
-.PHONY: proj
+.PHONY: all clean
 
-all: proj
+all: post-build
+
+pre-build: 
+	@echo PRE
+	cd libs/nanopb/generator/proto/ && make -f Makefile
+	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. --python_out=. $(PBUF_NAME).proto
+post-build: main-build
+	@echo POST
+main-build: pre-build
+	@$(MAKE) --no-print-directory target
+target: $(OBJS)
 $(OBJS):$(OBJDIR)%.o : %.c
 #	$(CC) $(CFLAGS) -L$(LIBDIR) -l$(ARM_MATH_LIB) -o $@ $^ 
 	$(CC) $(CFLAGS) -o $@ $^ 
-
-udp_echoserver.o : $(PBUF_NAME).pb.c
-
-$(PBUF_NAME).pb.c: $(PBUF_NAME).proto
-	cd libs/nanopb/generator/proto/ && make -f Makefile
-	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. --python_out=. $(PBUF_NAME).proto
 
 flash: $(PROJ_NAME).elf
 	$(ST_FLASH) write $(PROJ_NAME).bin 0x8000000
