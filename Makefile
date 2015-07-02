@@ -75,7 +75,7 @@ SRCS += inet.c msg_in.c netif.c asn1_enc.c fsm.c api_msg.c chap.c stm32f4xx_gpio
 ##Second cmd
 SRCS += igmp.c pap.c udp.c ip.c auth.c stm32f4xx_exti.c ppp_oe.c icmp.c dns.c netifapi.c misc.c api_lib.c dhcp.c ppp.c  ipcp.c tcp_out.c loopif.c raw.c
 SRCS += stm32f4xx_tim.c
-SRCS += stm32f4xx_dma.c udp_echoserver.c
+SRCS += stm32f4xx_dma.c 
 SRCS += pb_encode.c pb_decode.c pb_common.c udp_echoserver.c
 SRCS += $(PBUF_NAME).pb.c
 
