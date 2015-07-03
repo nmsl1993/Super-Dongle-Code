@@ -75,7 +75,7 @@ SRCS += inet.c msg_in.c netif.c asn1_enc.c fsm.c api_msg.c chap.c stm32f4xx_gpio
 ##Second cmd
 SRCS += igmp.c pap.c udp.c ip.c auth.c stm32f4xx_exti.c ppp_oe.c icmp.c dns.c netifapi.c misc.c api_lib.c dhcp.c ppp.c  ipcp.c tcp_out.c loopif.c raw.c
 SRCS += stm32f4xx_tim.c
-SRCS += stm32f4xx_dma.c udp_echoserver.c
+SRCS += stm32f4xx_dma.c 
 SRCS += pb_encode.c pb_decode.c pb_common.c udp_echoserver.c
 SRCS += $(PBUF_NAME).pb.c
 
@@ -90,18 +90,22 @@ OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 
 
 ###################################################
-.PHONY: proj
+.PHONY: all clean
 
-all: proj
+all: post-build
+
+pre-build: 
+	@echo PRE
+	cd libs/nanopb/generator/proto/ && make -f Makefile
+	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. --python_out=. $(PBUF_NAME).proto
+post-build: main-build
+	@echo POST
+main-build: pre-build
+	@$(MAKE) --no-print-directory target
+target: $(OBJS)
 $(OBJS):$(OBJDIR)%.o : %.c
 #	$(CC) $(CFLAGS) -L$(LIBDIR) -l$(ARM_MATH_LIB) -o $@ $^ 
 	$(CC) $(CFLAGS) -o $@ $^ 
-
-udp_echoserver.o : $(PBUF_NAME).pb.c
-
-$(PBUF_NAME).pb.c: $(PBUF_NAME).proto
-	cd libs/nanopb/generator/proto/ && make -f Makefile
-	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. --python_out=. $(PBUF_NAME).proto
 
 flash: $(PROJ_NAME).elf
 	$(ST_FLASH) write $(PROJ_NAME).bin 0x8000000
