@@ -4,8 +4,9 @@
 #include "kiss_fftr.h"
 #include "udp_receiver.h"
 #include <math.h>
-#define SAMPLING_FREQUENCY 200e3
-#define PSD_THRESHOLD .80000f
+#define SAMPLING_FREQUENCY 100e3
+#define PSD_THRESHOLD .50000f
+//#define PSD_THRESHOLD 0.0f
 typedef struct principal_frequency_t
 {
     int index;
@@ -27,7 +28,7 @@ int main (void) {
 
   printf("start loop \n");
   int bufcount = 0;
-  while(loop((char *) &spt) == 0)
+  while(loop(&spt) == 0)
   {
     int i;
 
@@ -112,7 +113,7 @@ principal_frequency calculate_pf(kiss_fft_cpx * carr, int carr_len)
 {
     float mag_sq_sum = 0;
     float mag_sq_max = 0;
-    int max_idx;
+    int max_idx = 0;
 
     int i;
     for(i = 0; i < carr_len; i++)

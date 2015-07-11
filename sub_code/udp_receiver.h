@@ -18,5 +18,5 @@ typedef struct superdongle_packet{
  uint8_t junk[UDP_PAYLOAD_SIZE - CHANNEL_DEPTH*sizeof(uint16_t)*3];
 }superdongle_packet_t;
 
-EXTERNC int loop (char* buffer);
+EXTERNC int loop (superdongle_packet_t * buffer);
 #endif
