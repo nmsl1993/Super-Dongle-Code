@@ -59,7 +59,7 @@ tokenizeLine(line,vec[line_count++]);
 
 
 }
-int loop(char * buffer ) {
+int loop(superdongle_packet_t * buffer ) {
   static int count = 0;
   if(!count)
   {
