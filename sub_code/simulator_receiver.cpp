@@ -18,6 +18,7 @@ string data("/home/odroid/Development/Super-Dongle-Code/sub_code/data/100Ksps/cl
 
 void tokenizeLine(const string &s, uint16_t  (&o)[3*CHANNEL_DEPTH])
 {
+/*
     static char * number_buf[30];
     int c = 0;
     int last_comma = 0;
@@ -36,14 +37,15 @@ void tokenizeLine(const string &s, uint16_t  (&o)[3*CHANNEL_DEPTH])
         }
         cs++;
     }
-    //typedef tokenizer<escaped_list_separator<char> > tok_t;
-    //tok_t tok(s);
-    //int c = 0;
-    //for(tok_t::iterator j (tok.begin()); j != tok.end(); ++j)
+  */
+    typedef tokenizer<escaped_list_separator<char> > tok_t;
+    tok_t tok(s);
+    int c = 0;
+    for(tok_t::iterator j (tok.begin()); j != tok.end(); ++j)
     {
-        //o[c++] = (uint16_t)lexical_cast<float>(*j);
-        //uint16_t temp = (uint16_t)lexical_cast<float>(*j);
-        //o[c] = (temp << 8) | (temp >> 8); //Put in network Endianess (big)
+        o[c++] = (uint16_t)lexical_cast<float>(*j);
+        uint16_t temp = (uint16_t)lexical_cast<float>(*j);
+        o[c] = (temp << 8) | (temp >> 8); //Put in network Endianess (big)
     }
 }
 void init()

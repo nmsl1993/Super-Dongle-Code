@@ -21,9 +21,9 @@ float phase_difference(float phase_a, float phase_b);
 int main (void) {
   superdongle_packet_t spt __attribute__ ((aligned (__BIGGEST_ALIGNMENT__)));;
   kiss_fftr_cfg fft = kiss_fftr_alloc(CHANNEL_DEPTH,0, 0, 0); //128 input real valued fft, forward direction, let library allocate space
-  kiss_fft_scalar rinA[CHANNEL_DEPTH];
-  kiss_fft_scalar rinB[CHANNEL_DEPTH];
-  kiss_fft_scalar rinC[CHANNEL_DEPTH];
+  kiss_fft_scalar rinA[CHANNEL_DEPTH]; //We think this is 1,0 
+  kiss_fft_scalar rinB[CHANNEL_DEPTH]; // We think this is 0,0
+  kiss_fft_scalar rinC[CHANNEL_DEPTH]; //We think this is 0,1
   kiss_fft_cpx cout[CHANNEL_DEPTH/2 + 1];
 
   printf("start loop \n");
@@ -62,8 +62,8 @@ int main (void) {
     float TB_phase = atan2(TB_X_k.i,TB_X_k.r);
     float TC_phase = atan2(TC_X_k.i,TC_X_k.r);
 
-    float delta_phase_Y = phase_difference(TC_phase,TB_phase);
-    float delta_phase_X = phase_difference(TA_phase,TB_phase);
+    float delta_phase_Y = phase_difference(TA_phase,TB_phase);
+    float delta_phase_X = phase_difference(TC_phase,TB_phase);
     float heading = atan2(delta_phase_Y,delta_phase_X);
 
     printf("Index %i, Heading in degrees: %f\n",bufcount, heading*180/M_PI); 
