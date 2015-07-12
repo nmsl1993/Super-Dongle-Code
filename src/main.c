@@ -358,14 +358,14 @@ int main(void)
         }
         if(doSearch == 1)
         {
-        	do_CFFT(ADCTripleConvertedValuesShadow,freqs);
-        	sendFreqs(freqs);
+        	//do_CFFT(ADCTripleConvertedValuesShadow,freqs);
+        	//sendFreqs(freqs);
         	doSearch = 0;
         }
         else if(doSearch == 2)
         {
-        	do_CFFT(ADCTripleConvertedValues,freqs);
-        	sendFreqs(freqs);
+        	//do_CFFT(ADCTripleConvertedValues,freqs);
+        	//sendFreqs(freqs);
 
         	doSearch = 0;
         }
