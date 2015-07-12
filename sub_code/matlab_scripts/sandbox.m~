@@ -1,4 +1,0 @@
-clear;
-
-M = csvread('../data/100Ksps/clean_new/clean_new.csv');
-t1_0 = M(
