@@ -23,6 +23,7 @@ message Command
     optional PGAGainCommand PGAGainCommand = 1;
     optional DataStreamCommand DataStreamCommand= 2;
     optional LEDCommand LEDCommand = 3;
+    optional SampleRateCommand SampleRateCommand = 4;
 }
 
 message DSPResponse
