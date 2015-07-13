@@ -290,8 +290,7 @@ void populate_samples_array(uint16_t * sample_arr, char * filename)
     fread (buffer, sizeof(char), length, f);
     }
     fclose (f);
-    record = strtok(buffer,",");
-    index++;
+    record = strtok(buffer,"\n");
         while(record != NULL)
         {
             if(index < SAMPLE_SIZE)
@@ -300,7 +299,7 @@ void populate_samples_array(uint16_t * sample_arr, char * filename)
             index++;
             }
 
-            record=strtok(NULL,",");
+            record=strtok(NULL,"\n");
             
         }
     free(buffer);
