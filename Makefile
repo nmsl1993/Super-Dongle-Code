@@ -83,7 +83,7 @@ SRCS += $(PBUF_NAME).pb.c
 SRCS += startup_stm32f4xx.c
 
 SRCS += dsp.c 
-MATH_SRCS = arm_common_tables.c arm_bitreversal.c arm_cfft_f32.c arm_cfft_radix8_f32.c arm_bitreversal2.S
+MATH_SRCS = arm_common_tables.c arm_bitreversal.c arm_cfft_f32.c arm_cfft_radix8_f32.c #arm_bitreversal2.S
 MATH_SRCS += arm_cmplx_mag_f32.c  arm_cmplx_mag_squared_f32.c arm_max_f32.c arm_rfft_fast_init_f32.c arm_rfft_fast_f32.c
 SRCS += $(MATH_SRCS)
 OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
@@ -95,11 +95,10 @@ OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(SRCS))
 all: post-build
 
 pre-build: 
-	@echo PRE
 	cd libs/nanopb/generator/proto/ && make -f Makefile
 	$(PROTOC) $(PROTOC_OPTS) --nanopb_out=. --python_out=. $(PBUF_NAME).proto
 post-build: main-build
-	@echo POST
+	@echo BUILD SUCCESSFUL
 main-build: pre-build
 	@$(MAKE) --no-print-directory target
 target: $(OBJS)
