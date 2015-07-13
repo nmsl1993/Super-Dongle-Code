@@ -10,6 +10,6 @@ transC = pyout.flatten()[2::3]
 
 target_dir = '/'.join(os.path.realpath(target).split('/')[0:-1:])
 print target_dir
-np.savetxt(target_dir+'/samples_1_0.csv',transA,delimiter=',',newline=',')
-np.savetxt(target_dir+'/samples_0_0.csv',transB,delimiter=',',newline=',')
-np.savetxt(target_dir+'/samples_0_1.csv',transC,delimiter=',',newline=',')
+np.savetxt(target_dir+'/samples_1_0.csv',transA,delimiter=',',newline=',',footer='')
+np.savetxt(target_dir+'/samples_0_0.csv',transB,delimiter=',',newline=',',footer='')
+np.savetxt(target_dir+'/samples_0_1.csv',transC,delimiter=',',newline=',',footer='')
