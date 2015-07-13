@@ -17,10 +17,13 @@ def load_samples(path):
 
 def main():
     print("Initializing...")
-    samples_0_0 = load_samples('data/256Ksps/clean/samples_0_0.csv')
-    samples_0_1 = load_samples('data/256Ksps/clean/samples_0_1.csv')
-    samples_1_0 = load_samples('data/256Ksps/clean/samples_1_0.csv')
+    samples_0_0 = load_samples('data/256Ksps/clean_90deg/samples_0_0.csv')
+    samples_1_0 = load_samples('data/256Ksps/clean_90deg/samples_0_1.csv')
+    samples_0_1 = load_samples('data/256Ksps/clean_90deg/samples_1_0.csv')
     print("Finished loading samples")
+    print(len(samples_0_0))
+    print(len(samples_1_0))
+    print(len(samples_0_1))
 
     # Search for pingers in up to first 1.2s of samples
     num_samples = int(1.2*SAMPLE_RATE)

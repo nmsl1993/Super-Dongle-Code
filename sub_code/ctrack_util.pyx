@@ -109,11 +109,11 @@ cdef class Phase_Var:
         cdef np.ndarray[DTYPE_t, ndim=1] valbuf = self._valbuf
         cdef int i
         for i in range(self._bufsize):
-            cos_sum += cos(valbuf[i])
-            sin_sum += sin(valbuf[i])
+            cos_sum += cmath.cos(valbuf[i])
+            sin_sum += cmath.sin(valbuf[i])
         cdef double Rsquared = cos_sum**2 + sin_sum**2
-        cdef float var = 1-sqrt(Rsquared)/self._bufsize
-        return float(total / self._bufsize)
+        cdef double var = 1-cmath.sqrt(Rsquared)/self._bufsize
+        return var
     #return scipy.stats.variation(self._valbuf)
 
 cdef double PI = math.pi
@@ -132,9 +132,10 @@ cpdef double phase_difference(double a, double b):
 cdef int DTFT_TARGET_LENGTH = 128
 cdef int PHASE_VAR_LENGTH = 32
 cdef int SAMPLE_RATE = 256000
-cdef double PHASE_THRESH = .001
+cdef double PHASE_THRESH = .00002
 cdef double MAG_THRESH = 1.5e7
-cdef double PING_COOLDOWN = 10000
+cdef int PING_COOLDOWN = 50000
+cdef int PING_COOLUP = 500
 
 highlights = []
 cdef add_highlight_region(int start, int end, color='red'):
@@ -151,7 +152,7 @@ def render_plots(samples, phase, magnitude, variance):
         if line:
             plt.axhline(line, color='green')
         plt.show(block=blocking)
-    do_plot(1, samples, "Raw Samples")
+    #do_plot(1, samples, "Raw Samples")
     do_plot(2, phase, "Angle")
     do_plot(3, magnitude, "Signal Magnitude", MAG_THRESH)
     do_plot(4, variance, "Phase Variance", PHASE_THRESH, True)
@@ -159,7 +160,7 @@ def render_plots(samples, phase, magnitude, variance):
 def process_and_show(np.ndarray[DTYPE_t] samples_0_0, np.ndarray[DTYPE_t]
         samples_0_1, np.ndarray[DTYPE_t] samples_1_0, double freq):
     cdef int length = len(samples_0_0)
-    length = 256000
+    #length = 256000
     cdef NCO nco = NCO(freq)
     samples_per_period = SAMPLE_RATE / freq
     dtft_len = round(samples_per_period*round(DTFT_TARGET_LENGTH/samples_per_period))
@@ -179,6 +180,7 @@ def process_and_show(np.ndarray[DTYPE_t] samples_0_0, np.ndarray[DTYPE_t]
 
     cdef int hlstart = -1
     cdef int lastping = 0
+    cdef int ping_start = -1
 
     cdef int i
     for i in range(length):
@@ -198,17 +200,25 @@ def process_and_show(np.ndarray[DTYPE_t] samples_0_0, np.ndarray[DTYPE_t]
                 hlstart = i
 
             if i > lastping + PING_COOLDOWN:
-                lastping = i
-                heading = angle_buf.average()*180/PI
-                print("PING! Heading = %f degrees, sample = %d" % (heading, i))
-                add_highlight_region(i-PHASE_VAR_LENGTH, i, "green")
+                if ping_start == -1:
+                    ping_start = i
+                elif ping_start + PING_COOLUP > i:
+                    pass
+                else:
+                    lastping = i
+                    heading = angle_buf.average()*180/PI
+                    print("PING! Heading = %f degrees, sample = %d" % (heading, i))
+                    add_highlight_region(i-PHASE_VAR_LENGTH, i, "green")
         elif hlstart != -1:
             add_highlight_region(hlstart, i)
             hlstart = -1
+            ping_start = -1
+        else:
+            ping_start = -1
         phases.append(angle_buf.average()*180/PI)
         variances.append(angle_buf.variance())
         magnitudes.append(dtft_0_0.mag_sq())
     if hlstart != -1:
         add_highlight_region(hlstart, length)
 
-    render_plots(samples_0_0[:200000], phases, magnitudes, variances)
+    render_plots(samples_0_0, phases, magnitudes, variances)
