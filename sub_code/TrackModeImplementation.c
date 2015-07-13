@@ -136,7 +136,7 @@ int main(int argc, char * argv[])
             //if(i > 128 && delta_phase_x_var < 0.0002)
             
             //if(i > 201800 && i < 202200)
-            if(i>50 && delta_phase_x_var < .002)
+            if(i>50 && delta_phase_x_var < .00002)
             {
                 printf("low phase @ varuabce %i: %f\n", i, delta_phase_x_var);
              
@@ -144,7 +144,7 @@ int main(int argc, char * argv[])
             printf("DELTA PHASE X VAR %f\n",delta_phase_x_var);
             printf("nco value: %f, nco cos %f\n",nco.nco_value, nco.cosTerm);
             printf("Delta phy %f Delta phx %f\n",delta_phase_y, delta_phase_x);
-            printf("phase_0_0 %f, phase_0_1 %f, phase_1_0 %f, heading: %f, heading %f\n",dtft_0_0.phase,dtft_0_1.phase,dtft_1_0.phase,heading,heading*180/CUAUV_PI);
+            printf("phase_0_0 %f, phase_0_1 %f, phase_1_0 %f, heading (rads): %f, heading (degs) %f\n",dtft_0_0.phase,dtft_0_1.phase,dtft_1_0.phase,heading,heading*180/CUAUV_PI);
             
             }
         }
