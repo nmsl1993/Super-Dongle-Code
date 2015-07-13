@@ -6,7 +6,7 @@
 #include <time.h>
 #include <math.h>
 #define SAMPLE_SIZE 640000
-#define SAMPLE_RATE 200000.0f
+#define SAMPLE_RATE 256000.0f
 #define PINGER_FREQ 37500.0f
 #define BUFFER_SIZE 64
 #define CUAUV_PI 3.14159265358979323846
@@ -60,6 +60,7 @@ int main(int argc, char * argv[])
         
         printf("Loading %s ...\n",argv[1]);
         populate_samples_array(samples_0_0,argv[1]);
+        printf("Samples 0 on 0 0, %i", samples_0_0[0]);
         /*
         long t = 0;
         for(int i = 0; i<SAMPLE_SIZE; i++)
@@ -136,18 +137,19 @@ int main(int argc, char * argv[])
             //if(i > 201800 && i < 202200)
             if(delta_phase_x_var < .0002)
             {
-                printf("low phase @ %i: %f\n", i, delta_phase_x_var);
+                printf("low phase @ varuabce %i: %f\n", i, delta_phase_x_var);
              
-            //printf("\nindex is = %i. phase var=%f, avg_phase=%f\n",i,dtft_0_0.phase_var,dtft_0_0.avg_phase);
-            //printf("DELTA PHASE X VAR %f\n",delta_phase_x_var);
-            //printf("nco value: %f, nco cos %f\n",nco.nco_value, nco.cosTerm);
-            //printf("Delta phy %f Delta phx %f\n",delta_phase_y, delta_phase_x);
-            //printf("phase_0_0 %f, phase_0_1 %f, phase_1_0 %f, heading: %f, heading %f\n",dtft_0_0.phase,dtft_0_1.phase,dtft_1_0.phase,heading,heading*180/CUAUV_PI);
+            printf("\nindex is = %i. phase var=%f, avg_phase=%f\n",i,dtft_0_0.phase_var,dtft_0_0.avg_phase);
+            printf("DELTA PHASE X VAR %f\n",delta_phase_x_var);
+            printf("nco value: %f, nco cos %f\n",nco.nco_value, nco.cosTerm);
+            printf("Delta phy %f Delta phx %f\n",delta_phase_y, delta_phase_x);
+            printf("phase_0_0 %f, phase_0_1 %f, phase_1_0 %f, heading: %f, heading %f\n",dtft_0_0.phase,dtft_0_1.phase,dtft_1_0.phase,heading,heading*180/CUAUV_PI);
             
             }
         }
         printf("\n\nmax of %f @ %i\n",max_sample,max_i);
         printf("varmin = %.16f, varmax=%.16f\n",var_min,var_max);
+        return 0;
     }
 }
 
@@ -292,7 +294,7 @@ void populate_samples_array(uint16_t * sample_arr, char * filename)
         {
             if(index < SAMPLE_SIZE)
             {
-            sample_arr[index] = atoi(record);
+            sample_arr[index] = (int) atof(record);
             index++;
             }
 
