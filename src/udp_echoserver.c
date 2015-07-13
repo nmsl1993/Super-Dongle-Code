@@ -180,6 +180,12 @@ void udp_echoserver_receive_callback(void *arg, struct udp_pcb *upcb, struct pbu
         GPIO_SetBits(GPIOE,LED3);
         }
     }
+    else if (type == SampleRateCommand_fields)
+    {
+        SampleRateCommand msg = {};
+        status = decode_command_contents(&stream, SampleRateCommand_fields, &msg);
+        setSampleRate(msg.srate);
+    }
     
     if (!status)
     {

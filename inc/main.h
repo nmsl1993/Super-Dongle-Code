@@ -16,7 +16,7 @@
 
 #define SINGLE_CHANNEL_BUFFERSIZE 128
 #define BUFFERSIZE 3*SINGLE_CHANNEL_BUFFERSIZE 
-#define SAMPLE_RATE 200000.0f
+//#define SAMPLE_RATE 200000.0f
 #define NYQUIST_FREQ (SAMPLE_RATE/2);
 #define LED1 GPIO_Pin_9
 #define LED2 GPIO_Pin_11
@@ -83,7 +83,8 @@
 void Time_Update(void);
 void Delay(uint32_t nCount);
 bool setGain(uint32_t gain);
-
+void setSampleRate(uint32_t srate);
+extern volatile uint32_t sample_rate = 256000;
 extern struct pbuf *p;
 extern __IO  uint32_t message_count;
 extern struct udp_pcb *upcb;

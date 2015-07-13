@@ -14,6 +14,10 @@ message LEDCommand
 {
 	required bool on = 1;
 }
+message SampleRateCommand
+{
+    required uint32 srate = 1;
+}
 message Command 
 {
     optional PGAGainCommand PGAGainCommand = 1;

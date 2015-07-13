@@ -167,13 +167,15 @@ static void DMA_Configuration(void)
 
 /**************************************************************************************/
 
-void TIM2_Configuration(void)
+void TIM2_Configuration(int srate)
 {
+    TIM_Cmd(TIM2,DISABLE);
+    TIM_DeInit(TIM2);
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 
 	/* Time base configuration */
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
-	TIM_TimeBaseStructure.TIM_Period = (84000000 / (int) SAMPLE_RATE) - 1; // 200 KHz, from 84 MHz TIM2CLK (ie APB1 = HCLK/4, TIM2CLK = HCLK/2)
+	TIM_TimeBaseStructure.TIM_Period = (84000000 / srate) - 1; // 200 KHz, from 84 MHz TIM2CLK (ie APB1 = HCLK/4, TIM2CLK = HCLK/2)
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -288,6 +290,11 @@ bool setGain(uint32_t gain)
 	return true;
 
 }
+void setSampleRate(uint32_t srate)
+{
+sample_rate = srate;
+TIM2_Configuration(sample_rate);
+}
 int main(void)
 {
 	do_blink = 0; //This controls whether the blue LED1 blinks.
@@ -304,7 +311,7 @@ int main(void)
 
 	//init_rfft();
 	NVIC_Configuration();
-	TIM2_Configuration();
+	TIM2_Configuration(sample_rate);
 	DMA_Configuration();
 	ADC_Configuration();
 
