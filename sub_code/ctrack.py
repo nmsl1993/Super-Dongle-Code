@@ -30,7 +30,7 @@ def main():
         search_range = samples_0_0[:num_samples]
 
     # Compute rfft magnitude in 256 sample steps, no overlap. Remove DC
-    # component from signal (introduced due to 2.5V DC bias for ADCs)
+    # component from signal (introduced due to 1.6V DC bias for ADCs)
     spectrum, freqs, times = mlab.specgram(search_range, 256, SAMPLE_RATE,
                                            noverlap=0, mode='magnitude', detrend='mean')
 
