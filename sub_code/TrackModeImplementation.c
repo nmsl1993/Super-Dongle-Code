@@ -46,7 +46,7 @@ void init_dtft(dtft_t*);
 void update_dtft(uint16_t, nco_t*, dtft_t*);
 void update_nco(nco_t*);
 float phase_difference(float,float);
-
+void printArr(uint16_t * arr, size_t len);
 int main(int argc, char * argv[])
 {
 //filename = argv[1]
@@ -59,8 +59,8 @@ int main(int argc, char * argv[])
     {
         
         printf("Loading %s ...\n",argv[1]);
-        populate_samples_array(samples_0_0,argv[0]);
-        printf("Samples 0 on 0 0, %i", samples_0_0[1000]);
+        populate_samples_array(samples_0_0,argv[1]);
+        
         /*
         long t = 0;
         for(int i = 0; i<SAMPLE_SIZE; i++)
@@ -74,6 +74,7 @@ int main(int argc, char * argv[])
         printf("Loading %s ...\n",argv[3]);
         populate_samples_array(samples_1_0,argv[3]);
         //long tic = 
+        //printArr(samples_0_1,SAMPLE_SIZE);
         printf("Processing data...\n");
 
         nco_t nco;
@@ -135,7 +136,7 @@ int main(int argc, char * argv[])
             //if(i > 128 && delta_phase_x_var < 0.0002)
             
             //if(i > 201800 && i < 202200)
-            if( delta_phase_x_var < .0002)
+            if(i>50 && delta_phase_x_var < .002)
             {
                 printf("low phase @ varuabce %i: %f\n", i, delta_phase_x_var);
              
@@ -290,6 +291,7 @@ void populate_samples_array(uint16_t * sample_arr, char * filename)
     }
     fclose (f);
     record = strtok(buffer,",");
+    index++;
         while(record != NULL)
         {
             if(index < SAMPLE_SIZE)
@@ -305,4 +307,13 @@ void populate_samples_array(uint16_t * sample_arr, char * filename)
     printf("%i\n",index); 
 
     
+}
+void printArr(uint16_t * arr, size_t len)
+{
+int i;
+for(i = 0; i < len; i++)
+{
+    printf("%i,",arr[i]);
+}
+printf("\n");
 }
