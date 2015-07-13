@@ -131,6 +131,8 @@ cdef int SAMPLE_RATE = 256000
 cdef double PHASE_THRESH = .001
 cdef double MAG_THRESH = 1.5e7
 cdef double PING_COOLDOWN = 10000
+cdef double PING_COOLUP = 1000
+cdef int PING_START = -1 
 
 cdef NCO nco
 cdef DTFT dtft_0_0
@@ -172,8 +174,15 @@ def process_streamed_data(np.ndarray[DTYPE_t] samples_0_0, np.ndarray[DTYPE_t]
         phase0.put(diff0)
         phase1.put(diff1)
         angle_buf.put(cmath.atan2(phase0.average(), phase1.average()))
-        if angle_buf.variance() < PHASE_THRESH and dtft_0_0.mag_sq() > MAG_THRESH:
+        if angle_buf.variance() < PHASE_THRESH and dtft_0_0.mag_sq() > MAG_THRESH: 
             if i > lastping + PING_COOLDOWN:
+                if PING_START == -1:
+                    PING_START == i
+                else if PING_START + PING_COOLUP < i:
+                    #Don't do anything...
+                else:
                 lastping = i
                 heading = angle_buf.average()*180/PI
                 print("PING! Heading = %f degrees, sample = %d" % (heading, i))
+        else:
+            PING_START = -1
