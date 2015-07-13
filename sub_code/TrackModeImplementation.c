@@ -59,8 +59,8 @@ int main(int argc, char * argv[])
     {
         
         printf("Loading %s ...\n",argv[1]);
-        populate_samples_array(samples_0_0,argv[1]);
-        printf("Samples 0 on 0 0, %i", samples_0_0[0]);
+        populate_samples_array(samples_0_0,argv[0]);
+        printf("Samples 0 on 0 0, %i", samples_0_0[1000]);
         /*
         long t = 0;
         for(int i = 0; i<SAMPLE_SIZE; i++)
@@ -135,7 +135,7 @@ int main(int argc, char * argv[])
             //if(i > 128 && delta_phase_x_var < 0.0002)
             
             //if(i > 201800 && i < 202200)
-            if(delta_phase_x_var < .0002)
+            if( delta_phase_x_var < .0002)
             {
                 printf("low phase @ varuabce %i: %f\n", i, delta_phase_x_var);
              
