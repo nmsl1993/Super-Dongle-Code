@@ -104,11 +104,15 @@ cdef class Phase_Var:
         return self._avg
 
     cpdef double variance(self):
-        cdef double total = 0.0
+        cdef double cos_sum = 0.0
+        cdef double sin_sum = 0.0
         cdef np.ndarray[DTYPE_t, ndim=1] valbuf = self._valbuf
         cdef int i
         for i in range(self._bufsize):
-            total += phase_difference(valbuf[i], self._avg)**2
+            cos_sum += cos(valbuf[i])
+            sin_sum += sin(valbuf[i])
+        cdef double Rsquared = cos_sum**2 + sin_sum**2
+        cdef float var = 1-sqrt(Rsquared)/self._bufsize
         return float(total / self._bufsize)
     #return scipy.stats.variation(self._valbuf)
 
@@ -136,7 +140,7 @@ highlights = []
 cdef add_highlight_region(int start, int end, color='red'):
     highlights.append((start, end, color))
 
-cdef render_plots(samples, phase, magnitude, variance):
+def render_plots(samples, phase, magnitude, variance):
     def do_plot(num, vals, title, line=None, blocking=False):
         plt.figure(num)
         plt.plot(np.arange(0, len(vals)), vals)
