@@ -24,12 +24,9 @@ class UDPThread(threading.Thread):
             try:
                 self.data, self.addr = self.sock.recvfrom(UDP_PAYLOAD_SIZE);
                 self.packet_counter += 1
-                data = ''
-                addr = ''
-                data = udpthread.data
-                addr = udpthread.addr
                 decode_string = str(CHANNEL_DEPTH*3) + 'H' + str(UDP_PAYLOAD_SIZE - CHANNEL_DEPTH*2*3) + 'x'
-                nd = numpy.asarray(struct.unpack(decode_string,data)) #300 16bit unsigneds, followed by 50 junk bits
+
+                nd = numpy.asarray(struct.unpack(decode_string,self.data)) #300 16bit unsigneds, followed by 50 junk bits
 
 
                 transducer0 = nd[0::3]
