@@ -22,7 +22,13 @@ class UDPThread(threading.Thread):
     def run(self):
         while(self.runme):
             try:
+
+                old_data = self.data
                 self.data, self.addr = self.sock.recvfrom(UDP_PAYLOAD_SIZE);
+                if(old_data == self.data):
+                    print("WARNING: DATA DUPLICATION DETECTED")
+                    self.runme = 0
+                    break
                 self.packet_counter += 1
                 decode_string = str(CHANNEL_DEPTH*3) + 'H' + str(UDP_PAYLOAD_SIZE - CHANNEL_DEPTH*2*3) + 'x'
 
