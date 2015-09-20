@@ -20,8 +20,6 @@ def zmq_run():
     socket = context.socket(zmq.SUB)
     socket.setsockopt_string(zmq.SUBSCRIBE, u"")
     socket.connect("tcp://192.168.0.93:34675")
-    processor = stream.Stream_Track(PING_FREQ)
-    print("Using pinger with frequency %f" % PING_FREQ)
 
     while True:
         nd = socket.recv_json()
@@ -31,12 +29,15 @@ def zmq_run():
         processor.process(samples_0_0, samples_0_1, samples_1_0)
 
 if __name__ == '__main__':
+    processor = stream.Stream_Track(PING_FREQ)
+    print("Using pinger with frequency %f" % PING_FREQ)
     if MODE == 'ZMQ':
         main()
     if MODE == 'SIMULATED':
         d = scipy.io.loadmat('synthetic_data/400khz_40.mat')
-        for index in range(0,len(d['sample_0_0']),CHANNEL_DEPTH):
-            samples_0_0 = d['sample_0_0'][index:index+CHANNEL_DEPTH].astype(np.double)
-            samples_0_1 = d['sample_0_1'][index:index+CHANNEL_DEPTH].astype(np.double)
-            samples_1_0 = d['sample_1_0'][index:index+CHANNEL_DEPTH].astype(np.double)
+        print(d['sample_0_0'].size)
+        for index in range(0,d['sample_0_0'].size,CHANNEL_DEPTH):
+            samples_0_0 = d['sample_0_0'][:,index:index+CHANNEL_DEPTH].flatten().astype(np.double)
+            samples_0_1 = d['sample_0_1'][:,index:index+CHANNEL_DEPTH].flatten().astype(np.double)
+            samples_1_0 = d['sample_1_0'][:,index:index+CHANNEL_DEPTH].flatten().astype(np.double)
             processor.process(samples_0_0, samples_0_1, samples_1_0)

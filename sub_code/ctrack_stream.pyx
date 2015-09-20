@@ -181,6 +181,7 @@ cdef class Stream_Track:
             self.phase1.put(diff1)
             self.angle_buf.put(cmath.atan2(self.phase0.average(), self.phase1.average()))
             if self.angle_buf.variance() < PHASE_THRESH and self.dtft_0_0.mag_sq() > MAG_THRESH:
+                print("VARIANCE BELOW THRESH!")
                 if self.idx > self.lastping + PING_COOLDOWN or self.idx < self.lastping:
                     if self.ping_start == -1:
                         self.ping_start = self.idx
