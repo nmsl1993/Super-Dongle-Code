@@ -25,6 +25,7 @@ PING_POLAR_ANGLE = np.radians(110) #This is the polar angle in spherical coords 
 NOISE_POWER = 0.05
 NUMBER_OF_MULTIPATHS = 8
 MAXIMUM_MULTIPATH_DISTANCE = 5 #In meters
+MAX_MULTIPATH_GAIN = .3
 DATA_LEN = 5 #In seconds
 
 lambda_sound = SPEED_SOUND/PING_FREQ #Phase velocity in H20 divided by ping frequency is wavelength (roughly 4 cm)
@@ -45,12 +46,12 @@ phase_0_1 = phase_ref + delta_phase_y;
 
 
 time = np.arange(0,DATA_LEN,1/SAMPLE_FREQ)
-envelope = np.zeros((ping_start_delay*SAMPLE_FREQ,1))
+envelope = np.zeros(ping_start_delay*SAMPLE_FREQ)
 
 while len(envelope) < len(time):
 
-    on_period = np.ones((PING_LENGTH*SAMPLE_FREQ,1))
-    off_period = np.zeros((SAMPLE_FREQ*(INTER_PING_TIME+ping_interval_uncertainty_time*(np.random.random() - .5)),1))
+    on_period = np.ones(PING_LENGTH*SAMPLE_FREQ)
+    off_period = np.zeros(SAMPLE_FREQ*(INTER_PING_TIME+ping_interval_uncertainty_time*(np.random.random() - .5)))
     #print(envelope.shape)
     #print(on_period.shape)
     #print(off_period.shape)
@@ -59,18 +60,29 @@ while len(envelope) < len(time):
 envelope = envelope[0:len(time)].flatten()
 
 source_0_0 = np.cos(omega*time - phase_ref)*envelope
-source_0_0 += NOISE_POWER*(np.random.randn(len(time),1).flatten())
+source_0_0 += NOISE_POWER*(np.random.randn(len(time)))
 source_0_1 = np.cos(omega*time - phase_0_1)*envelope
-source_0_1 += NOISE_POWER*(np.random.randn(len(time),1).flatten())
+source_0_1 += NOISE_POWER*(np.random.randn(len(time)))
 source_1_0 = np.cos(omega*time - phase_1_0)*envelope
-source_1_0 += NOISE_POWER*(np.random.randn(len(time),1).flatten())
+source_1_0 += NOISE_POWER*(np.random.randn(len(time)))
 
 ###########################################
 ##LAME ATTEMPT AT MODELING MULTIPATHING
 #######################################
 multipath_distances = MAXIMUM_MULTIPATH_DISTANCE*np.random.random(NUMBER_OF_MULTIPATHS) #random
-multipath_delays = multipath_distances/SPEED_SOUND
+multipath_delays_in_seconds = multipath_distances/SPEED_SOUND
+multipath_delays_in_ticks = multipath_delays_in_seconds*SAMPLE_FREQ
+multipath_gains = np.random.random(multipath_delays_in_ticks.shape)*MAX_MULTIPATH_GAIN
 
+channel_vector = np.zeros(np.max(multipath_delays_in_ticks) + 1)
+channel_vector[0] = 1 #Line of sight path
+for idx,x in enumerate(multipath_delays_in_ticks):
+    channel_vector[x] = multipath_gains[idx]
+print(channel_vector)
+
+source_0_0 = np.convolve(source_0_0,channel_vector)
+source_0_1 = np.convolve(source_0_1,channel_vector)
+source_1_0 = np.convolve(source_1_0,channel_vector)
 
 
 gain_0_0 = 250 + np.random.randint(-50,50)
