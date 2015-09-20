@@ -28,7 +28,7 @@ cdef class NCO:
         self._cosTerm = cmath.cos(self._angle)
         self._sinTerm = cmath.sin(self._angle)
 
-    cpdef step(self):
+    cdef void step(self):
         self._angle += self._step
         self._update()
 
@@ -40,42 +40,44 @@ cdef class NCO:
 
 cdef class RBuf:
     cdef double _sinSum, _cosSum
-    cdef int _index, _size
+    cdef unsigned int _index, _size
     cdef np.ndarray _buf
-    def __init__(self, bufsize):
+    def __init__(self, unsigned int bufsize):
         self._buf = np.zeros([bufsize, 2])
         self._sinSum = 0.0
         self._cosSum = 0.0
         self._index = 0
         self._size = bufsize
 
-    cpdef void put(self, double sinVal, double cosVal):
+    cdef void put(self, double sinVal, double cosVal):
         cdef np.ndarray[DTYPE_t, ndim=2] buf = self._buf
-        self._sinSum -= buf[self._index, 0]
-        self._cosSum -= buf[self._index, 1]
+        self._sinSum -= buf[self._index, <unsigned int> 0]
+        self._cosSum -= buf[self._index, <unsigned int> 1]
         self._sinSum += sinVal
         self._cosSum += cosVal
-        buf[self._index, 0] = sinVal
-        buf[self._index, 1] = cosVal
+        buf[self._index, <unsigned int> 0] = sinVal
+        buf[self._index, <unsigned int> 1] = cosVal
         self._index = (self._index + 1) % self._size
 
-    cpdef double cosSum(self):
+    cdef double cosSum(self):
         return self._cosSum
 
-    cpdef double sinSum(self):
+    cdef double sinSum(self):
         return self._sinSum
 
-    cpdef double angle(self):
+    cdef double angle(self):
         return cmath.atan2(self._sinSum, self._cosSum)
 
 cdef class DTFT:
     cdef RBuf _rbuf
-    def __init__(self, bufsize):
+    cdef NCO _nco
+    def __init__(self, bufsize, nco):
         self._rbuf = RBuf(bufsize)
+        self._nco = nco
 
-    cdef step(self, double sample, NCO nco):
-        cdef double cosProduct = sample * nco.cosTerm()
-        cdef double sinProduct = sample * nco.sinTerm()
+    cdef void step(self, double sample):
+        cdef double cosProduct = sample * self._nco.cosTerm()
+        cdef double sinProduct = sample * self._nco.sinTerm()
         self._rbuf.put(sinProduct, cosProduct)
 
     cdef double phase(self):
@@ -88,15 +90,15 @@ cdef class Phase_Var:
     cdef RBuf _avgbuf
     cdef np.ndarray _valbuf
     cdef double _avg
-    cdef int _index, _bufsize
-    def __init__(self, bufsize):
+    cdef unsigned int _index, _bufsize
+    def __init__(self, unsigned int bufsize):
         self._avgbuf = RBuf(bufsize)
         self._valbuf = np.zeros(bufsize)
         self._avg = 0.0
         self._index = 0
         self._bufsize = bufsize
 
-    cpdef put(self, double phase):
+    cdef void put(self, double phase):
         cdef np.ndarray[DTYPE_t, ndim=1] valbuf = self._valbuf
         valbuf[self._index] = phase
         self._avgbuf.put(cmath.sin(phase)/self._bufsize,
@@ -104,10 +106,10 @@ cdef class Phase_Var:
         self._avg = self._avgbuf.angle()
         self._index = (self._index + 1)%self._bufsize
 
-    cpdef double average(self):
+    cdef double average(self):
         return self._avg
 
-    cpdef double variance(self):
+    cdef double variance(self):
         cdef double cos_sum = 0.0
         cdef double sin_sum = 0.0
         cdef np.ndarray[DTYPE_t, ndim=1] valbuf = self._valbuf
@@ -122,7 +124,7 @@ cdef class Phase_Var:
 
 cdef double PI = math.pi
 
-cpdef double phase_difference(double a, double b):
+cdef double phase_difference(double a, double b):
     cdef double diff = a - b
     #while diff > math.pi:
     #    diff -= 2*math.pi
@@ -150,7 +152,7 @@ cdef class Stream_Track:
     cdef Phase_Var phase1
     cdef Phase_Var angle_buf
     cdef int lastping
-    cdef int idx
+    cdef unsigned int idx
     cdef int ping_start
     cdef double mtm
 
@@ -159,9 +161,9 @@ cdef class Stream_Track:
         samples_per_period = SAMPLE_RATE / freq
         dtft_len = round(samples_per_period*round(DTFT_TARGET_LENGTH/samples_per_period))
         print("Selected DTFT length of %d samples" % dtft_len)
-        self.dtft_0_0 = DTFT(dtft_len)
-        self.dtft_0_1 = DTFT(dtft_len)
-        self.dtft_1_0 = DTFT(dtft_len)
+        self.dtft_0_0 = DTFT(dtft_len, self.nco)
+        self.dtft_0_1 = DTFT(dtft_len, self.nco)
+        self.dtft_1_0 = DTFT(dtft_len, self.nco)
         self.phase0 = Phase_Var(PHASE_VAR_LENGTH)
         self.phase1 = Phase_Var(PHASE_VAR_LENGTH)
         self.angle_buf = Phase_Var(PHASE_VAR_LENGTH)
@@ -171,16 +173,18 @@ cdef class Stream_Track:
         self.mtm = 0;
 
     
-    def process(self, np.ndarray[DTYPE_t] samples_0_0, np.ndarray[DTYPE_t]
-            samples_0_1, np.ndarray[DTYPE_t] samples_1_0):
-        cdef int length = len(samples_0_0)
+    def process(self, np.ndarray[DTYPE_t, ndim=1] samples_0_0, np.ndarray[DTYPE_t, ndim=1]
+            samples_0_1, np.ndarray[DTYPE_t, ndim=1] samples_1_0):
+        cdef unsigned int length = len(samples_0_0)
         cdef double diff0, diff1
+
+        cdef unsigned int i
         
         for i in range(length):
             self.nco.step()
-            self.dtft_0_0.step(samples_0_0[i], self.nco)
-            self.dtft_0_1.step(samples_0_1[i], self.nco)
-            self.dtft_1_0.step(samples_1_0[i], self.nco)
+            self.dtft_0_0.step(samples_0_0[i])
+            self.dtft_0_1.step(samples_0_1[i])
+            self.dtft_1_0.step(samples_1_0[i])
     
             diff0 = phase_difference(self.dtft_0_1.phase(), self.dtft_0_0.phase())
             diff1 = phase_difference(self.dtft_1_0.phase(), self.dtft_0_0.phase())

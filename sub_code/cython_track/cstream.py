@@ -12,7 +12,8 @@ UDP_IP=""
 UDP_PORT=8899
 PING_FREQ = 37500
 
-MODE='SIMULATED'
+#MODE='SIMULATED'
+MODE='SIM_WHOLE'
 #MODE='UDP'
 #MODE='ZMQ'
 def zmq_run():
@@ -33,6 +34,13 @@ if __name__ == '__main__':
     print("Using pinger with frequency %f" % PING_FREQ)
     if MODE == 'ZMQ':
         main()
+    if MODE == 'SIM_WHOLE':
+        d = scipy.io.loadmat('../synthetic_data/400khz_165.mat')
+    #    print(d['sample_0_0'].size)
+        samples_0_0 = d['sample_0_0'].flatten().astype(np.double)
+        samples_0_1 = d['sample_0_1'].flatten().astype(np.double)
+        samples_1_0 = d['sample_1_0'].flatten().astype(np.double)
+        processor.process(samples_0_0, samples_0_1, samples_1_0)
     if MODE == 'SIMULATED':
         d = scipy.io.loadmat('../synthetic_data/400khz_165_multipath3.mat')
     #    print(d['sample_0_0'].size)
