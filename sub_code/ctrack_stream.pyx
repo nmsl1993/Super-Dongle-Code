@@ -13,10 +13,11 @@ cdef class NCO:
     cdef double _step
     cdef double _cosTerm
     cdef double _sinTerm
-    def __init__(self, freq):
+    cdef double _nco_update_rate 
+    def __init__(self, nco_update_rate, freq):
         self._angle = 0.0
-        SAMPLE_RATE = 256000.0
-        samples_per_cycle = SAMPLE_RATE/freq
+        self._nco_update_rate = nco_update_rate 
+        samples_per_cycle = self._nco_update_rate/freq
         self._step = 2.0*math.pi/samples_per_cycle
         self._update()
 
@@ -133,7 +134,7 @@ cdef int DTFT_TARGET_LENGTH = 128
 cdef int PHASE_VAR_LENGTH = 32
 cdef int SAMPLE_RATE = 400000
 cdef double PHASE_THRESH = .0005
-cdef double MAG_THRESH = 0.5e7
+cdef double MAG_THRESH = 1e8
 cdef int PING_COOLDOWN = 50000
 cdef int PING_COOLUP = 500
 
@@ -148,9 +149,10 @@ cdef class Stream_Track:
     cdef int lastping
     cdef int idx
     cdef int ping_start
+    cdef double mtm
 
     def __init__(self, double freq):
-        self.nco = NCO(freq)
+        self.nco = NCO(SAMPLE_RATE,freq)
         samples_per_period = SAMPLE_RATE / freq
         dtft_len = round(samples_per_period*round(DTFT_TARGET_LENGTH/samples_per_period))
         print("Selected DTFT length of %d samples" % dtft_len)
@@ -163,11 +165,14 @@ cdef class Stream_Track:
         self.idx = 0
         self.lastping = 0
         self.ping_start = -1
+        self.mtm = 0;
 
+    
     def process(self, np.ndarray[DTYPE_t] samples_0_0, np.ndarray[DTYPE_t]
             samples_0_1, np.ndarray[DTYPE_t] samples_1_0):
         cdef int length = len(samples_0_0)
         cdef double diff0, diff1
+        
         for i in range(length):
             self.nco.step()
             self.dtft_0_0.step(samples_0_0[i], self.nco)
@@ -181,7 +186,6 @@ cdef class Stream_Track:
             self.phase1.put(diff1)
             self.angle_buf.put(cmath.atan2(self.phase0.average(), self.phase1.average()))
             if self.angle_buf.variance() < PHASE_THRESH and self.dtft_0_0.mag_sq() > MAG_THRESH:
-                print("VARIANCE BELOW THRESH!")
                 if self.idx > self.lastping + PING_COOLDOWN or self.idx < self.lastping:
                     if self.ping_start == -1:
                         self.ping_start = self.idx
@@ -192,4 +196,13 @@ cdef class Stream_Track:
                         self.ping_start = -1
                         heading = self.angle_buf.average()*180/PI
                         print("PING! Heading = %f degrees, sample = %d" % (heading, self.idx))
+
             self.idx = self.idx + 1
+            '''
+            if self.dtft_0_0.mag_sq() > self.mtm:
+                self.mtm = self.dtft_0_0.mag_sq()
+                print("UPDATE THRESHMAX", self.mtm)
+                heading = self.angle_buf.average()*180/PI
+                print("PING! Heading = %f degrees, sample = %d" % (heading, self.idx))
+            '''
+

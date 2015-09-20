@@ -35,7 +35,7 @@ if __name__ == '__main__':
         main()
     if MODE == 'SIMULATED':
         d = scipy.io.loadmat('synthetic_data/400khz_40.mat')
-        print(d['sample_0_0'].size)
+    #    print(d['sample_0_0'].size)
         for index in range(0,d['sample_0_0'].size,CHANNEL_DEPTH):
             samples_0_0 = d['sample_0_0'][:,index:index+CHANNEL_DEPTH].flatten().astype(np.double)
             samples_0_1 = d['sample_0_1'][:,index:index+CHANNEL_DEPTH].flatten().astype(np.double)
