@@ -15,7 +15,8 @@ ELEM_SPACING = 0.015 #element spacing in meters
 SPEED_SOUND = 1497
 
 PING_FREQ = 37500
-PING_LENGTH = 0.0025 #In seconds (1ms)
+PING_LENGTH = 0.0095 #In seconds (9ms)
+PINGER_RING_UP_TAU = 0.0010 #In seconds (1ms tau)
 INTER_PING_TIME = 1.5 #In seconds (1.5s)
 PING_PERIOD = PING_LENGTH+INTER_PING_TIME
 
@@ -23,8 +24,8 @@ PING_AZIMUTH_ANGLE = np.radians(165) #NOTE: This is the azimuthal angle in spher
 PING_POLAR_ANGLE = np.radians(110) #This is the polar angle in spherical coords (theta in physics)
 
 NOISE_POWER = 0.05
-NUMBER_OF_MULTIPATHS = 8
-MAXIMUM_MULTIPATH_DISTANCE = 5 #In meters
+NUMBER_OF_MULTIPATHS = 10
+MAXIMUM_MULTIPATH_DISTANCE = 12 #In meters
 MAX_MULTIPATH_GAIN = .3
 DATA_LEN = 5 #In seconds
 
@@ -50,7 +51,7 @@ envelope = np.zeros(ping_start_delay*SAMPLE_FREQ)
 
 while len(envelope) < len(time):
 
-    on_period = np.ones(PING_LENGTH*SAMPLE_FREQ)
+    on_period = (1-np.exp(-1*np.linspace(0,PING_LENGTH,PING_LENGTH*SAMPLE_FREQ)/PINGER_RING_UP_TAU)) #*np.ones(PING_LENGTH*SAMPLE_FREQ)
     off_period = np.zeros(SAMPLE_FREQ*(INTER_PING_TIME+ping_interval_uncertainty_time*(np.random.random() - .5)))
     #print(envelope.shape)
     #print(on_period.shape)
