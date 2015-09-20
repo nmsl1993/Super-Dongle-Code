@@ -73,8 +73,8 @@ sample_0_1 = 2048+np.floor(source_0_1*gain_0_1)
 sample_1_0 = 2048+np.floor(source_1_0*gain_1_0)
 
 d = dict()
-d['sample_0_0'] = sample_0_0
-d['sample_0_1'] = sample_0_1
-d['sample_1_0'] = sample_1_0
+d['sample_0_0'] = sample_0_0.flatten()
+d['sample_0_1'] = sample_0_1.flatten()
+d['sample_1_0'] = sample_1_0.flatten()
 
 scipy.io.savemat('test',d,do_compression=True)
