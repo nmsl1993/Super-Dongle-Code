@@ -5,7 +5,7 @@
 # @ author Patrick Dear (translated to Python3 from Matlab by Noah Levy)
 #########################################
 
-
+#Multipathing channel model taken from here: Underwater Acoustic Communications: Design Considerations on the Phyisical Layer
 import numpy as np
 import numpy.random
 import scipy
@@ -23,7 +23,8 @@ PING_AZIMUTH_ANGLE = np.radians(165) #NOTE: This is the azimuthal angle in spher
 PING_POLAR_ANGLE = np.radians(110) #This is the polar angle in spherical coords (theta in physics)
 
 NOISE_POWER = 0.05
-
+NUMBER_OF_MULTIPATHS = 8
+MAXIMUM_MULTIPATH_DISTANCE = 5 #In meters
 DATA_LEN = 5 #In seconds
 
 lambda_sound = SPEED_SOUND/PING_FREQ #Phase velocity in H20 divided by ping frequency is wavelength (roughly 4 cm)
@@ -63,6 +64,13 @@ source_0_1 = np.cos(omega*time - phase_0_1)*envelope
 source_0_1 += NOISE_POWER*(np.random.randn(len(time),1).flatten())
 source_1_0 = np.cos(omega*time - phase_1_0)*envelope
 source_1_0 += NOISE_POWER*(np.random.randn(len(time),1).flatten())
+
+###########################################
+##LAME ATTEMPT AT MODELING MULTIPATHING
+#######################################
+multipath_distances = MAXIMUM_MULTIPATH_DISTANCE*np.random.random(NUMBER_OF_MULTIPATHS) #random
+multipath_delays = multipath_distances/SPEED_SOUND
+
 
 
 gain_0_0 = 250 + np.random.randint(-50,50)

@@ -1,9 +1,12 @@
+#!python
+#cython: language_level=3, cdivision=True, boundscheck=False
 import math
 import numpy as np
 import scipy.stats
 cimport libc.math as cmath
 cimport numpy as np
 import matplotlib.pyplot as plt
+cimport cython
 
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
@@ -46,7 +49,7 @@ cdef class RBuf:
         self._index = 0
         self._size = bufsize
 
-    cdef void put(self, double sinVal, double cosVal):
+    cpdef void put(self, double sinVal, double cosVal):
         cdef np.ndarray[DTYPE_t, ndim=2] buf = self._buf
         self._sinSum -= buf[self._index, 0]
         self._cosSum -= buf[self._index, 1]
@@ -56,13 +59,13 @@ cdef class RBuf:
         buf[self._index, 1] = cosVal
         self._index = (self._index + 1) % self._size
 
-    cdef double cosSum(self):
+    cpdef double cosSum(self):
         return self._cosSum
 
-    cdef double sinSum(self):
+    cpdef double sinSum(self):
         return self._sinSum
 
-    cdef double angle(self):
+    cpdef double angle(self):
         return cmath.atan2(self._sinSum, self._cosSum)
 
 cdef class DTFT:
@@ -70,15 +73,15 @@ cdef class DTFT:
     def __init__(self, bufsize):
         self._rbuf = RBuf(bufsize)
 
-    cpdef step(self, double sample, NCO nco):
+    cdef step(self, double sample, NCO nco):
         cdef double cosProduct = sample * nco.cosTerm()
         cdef double sinProduct = sample * nco.sinTerm()
         self._rbuf.put(sinProduct, cosProduct)
 
-    cpdef double phase(self):
+    cdef double phase(self):
         return self._rbuf.angle()
 
-    cpdef double mag_sq(self):
+    cdef double mag_sq(self):
         return self._rbuf.cosSum()**2 + self._rbuf.sinSum()**2
 
 cdef class Phase_Var:
@@ -99,7 +102,7 @@ cdef class Phase_Var:
         self._avgbuf.put(cmath.sin(phase)/self._bufsize,
                 cmath.cos(phase)/self._bufsize)
         self._avg = self._avgbuf.angle()
-        self._index = (self._index + 1) % self._bufsize
+        self._index = (self._index + 1)%self._bufsize
 
     cpdef double average(self):
         return self._avg
