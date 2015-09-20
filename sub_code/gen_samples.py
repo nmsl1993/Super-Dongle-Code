@@ -68,9 +68,9 @@ source_1_0 += NOISE_POWER*(np.random.randn(len(time),1).flatten())
 gain_0_0 = 250 + np.random.randint(-50,50)
 gain_0_1 = 250 + np.random.randint(-50,50)
 gain_1_0 = 250 + np.random.randint(-50,50)
-sample_0_0 = 2048+source_0_0*gain_0_0
-sample_0_1 = 2048+source_0_1*gain_0_1
-sample_1_0 = 2048+source_1_0*gain_1_0
+sample_0_0 = 2048+np.floor(source_0_0*gain_0_0)
+sample_0_1 = 2048+np.floor(source_0_1*gain_0_1)
+sample_1_0 = 2048+np.floor(source_1_0*gain_1_0)
 
 d = dict()
 d['sample_0_0'] = sample_0_0

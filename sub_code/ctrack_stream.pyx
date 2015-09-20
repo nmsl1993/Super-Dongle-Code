@@ -131,7 +131,7 @@ cpdef double phase_difference(double a, double b):
 
 cdef int DTFT_TARGET_LENGTH = 128
 cdef int PHASE_VAR_LENGTH = 32
-cdef int SAMPLE_RATE = 256000
+cdef int SAMPLE_RATE = 400000
 cdef double PHASE_THRESH = .0005
 cdef double MAG_THRESH = 0.5e7
 cdef int PING_COOLDOWN = 50000
