@@ -19,8 +19,8 @@ PING_LENGTH = 0.0025 #In seconds (1ms)
 INTER_PING_TIME = 1.5 #In seconds (1.5s)
 PING_PERIOD = PING_LENGTH+INTER_PING_TIME
 
-PING_AZIMUTH_ANGLE = np.radians(40) #NOTE: This is the azimuthal angle in spherical cooridinates (phi in physics)
-PING_POLAR_ANGLE = np.radians(90) #This is the polar angle in spherical coords (theta in physics)
+PING_AZIMUTH_ANGLE = np.radians(165) #NOTE: This is the azimuthal angle in spherical cooridinates (phi in physics)
+PING_POLAR_ANGLE = np.radians(110) #This is the polar angle in spherical coords (theta in physics)
 
 NOISE_POWER = 0.05
 

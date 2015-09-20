@@ -34,7 +34,7 @@ if __name__ == '__main__':
     if MODE == 'ZMQ':
         main()
     if MODE == 'SIMULATED':
-        d = scipy.io.loadmat('synthetic_data/400khz_40.mat')
+        d = scipy.io.loadmat('../synthetic_data/400khz_165.mat')
     #    print(d['sample_0_0'].size)
         for index in range(0,d['sample_0_0'].size,CHANNEL_DEPTH):
             samples_0_0 = d['sample_0_0'][:,index:index+CHANNEL_DEPTH].flatten().astype(np.double)
