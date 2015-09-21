@@ -1,0 +1,2 @@
+<location>_<heading>_<notes>.mat
+Assume thrusters active unless otherwise specified
