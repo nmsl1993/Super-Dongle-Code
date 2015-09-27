@@ -27,9 +27,9 @@
 
 #define DEST_IP_ADDR0   192
 #define DEST_IP_ADDR1   168
-#define DEST_IP_ADDR2   5
-#define DEST_IP_ADDR3   255
- 
+#define DEST_IP_ADDR2   1
+#define DEST_IP_ADDR3   93
+
 #define UDP_SERVER_DATA_PORT    8899   //Local port for streaming data
 #define UDP_CLIENT_DATA_PORT    8899   //Remote port for streaming data
 #define UDP_SERVER_COMMAND_PORT    8898   //Local port for communications
@@ -46,8 +46,8 @@
 /*Static IP ADDRESS: IP_ADDR0.IP_ADDR1.IP_ADDR2.IP_ADDR3 */
 #define IP_ADDR0   192
 #define IP_ADDR1   168
-#define IP_ADDR2   5
-#define IP_ADDR3   5
+#define IP_ADDR2   1
+#define IP_ADDR3   13
    
 /*NETMASK*/
 #define NETMASK_ADDR0   255

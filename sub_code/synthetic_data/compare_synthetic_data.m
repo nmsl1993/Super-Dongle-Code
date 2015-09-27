@@ -1,6 +1,6 @@
 clear;
-load('~/Development/Super-Dongle-Code/dumps/ping_flat.mat')
-load('~/Development/Super-Dongle-Code/sub_code/synthetic_data/400khz_165_multipath3.mat')
+load('/home/noah/Super-Dongle-Code/dumps/ping_flat.mat')
+load('400khz_165_multipath3.mat')
 
 fs=400e3
 time1 = (1:length(ping_A))./400e3;
