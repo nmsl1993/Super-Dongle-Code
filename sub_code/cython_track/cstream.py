@@ -35,11 +35,11 @@ if __name__ == '__main__':
     if MODE == 'ZMQ':
         main()
     if MODE == 'SIM_WHOLE':
-        d = scipy.io.loadmat('../synthetic_data/400khz_165.mat')
+        d = scipy.io.loadmat('pool_2_0deg.mat')
     #    print(d['sample_0_0'].size)
-        samples_0_0 = d['sample_0_0'].flatten().astype(np.double)
-        samples_0_1 = d['sample_0_1'].flatten().astype(np.double)
-        samples_1_0 = d['sample_1_0'].flatten().astype(np.double)
+        samples_0_0 = d['ping_B'].flatten().astype(np.double)
+        samples_0_1 = d['ping_C'].flatten().astype(np.double)
+        samples_1_0 = d['ping_A'].flatten().astype(np.double)
         processor.process(samples_0_0, samples_0_1, samples_1_0)
     if MODE == 'SIMULATED':
         d = scipy.io.loadmat('../synthetic_data/400khz_165_multipath3.mat')

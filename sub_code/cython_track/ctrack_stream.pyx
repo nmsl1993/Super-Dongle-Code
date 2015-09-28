@@ -11,6 +11,8 @@ cimport cython
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
 
+cdef double PI = math.pi
+
 cdef class NCO:
     cdef double _angle
     cdef double _step
@@ -29,7 +31,9 @@ cdef class NCO:
         self._sinTerm = cmath.sin(self._angle)
 
     cdef void step(self):
-        self._angle += self._step
+        self._angle -= self._step
+        if self._angle < 2*PI:
+            self._angle += 2*PI
         self._update()
 
     cdef double cosTerm(self):
@@ -122,8 +126,6 @@ cdef class Phase_Var:
         return var
     #return scipy.stats.variation(self._valbuf)
 
-cdef double PI = math.pi
-
 cdef double phase_difference(double a, double b):
     cdef double diff = a - b
     #while diff > math.pi:
@@ -135,11 +137,11 @@ cdef double phase_difference(double a, double b):
         diff = diff - 2*PI
     return diff
 
-cdef int DTFT_TARGET_LENGTH = 128
+cdef int DTFT_TARGET_LENGTH = 512
 cdef int PHASE_VAR_LENGTH = 32
 cdef int SAMPLE_RATE = 400000
-cdef double PHASE_THRESH = .0005
-cdef double MAG_THRESH = 1e8
+cdef double PHASE_THRESH = .00005
+cdef double MAG_THRESH = 5e7
 cdef int PING_COOLDOWN = 50000
 cdef int PING_COOLUP = 500
 
@@ -202,7 +204,13 @@ cdef class Stream_Track:
                         self.lastping = self.idx
                         self.ping_start = -1
                         heading = self.angle_buf.average()*180/PI
+                        diff0 = diff0*180/PI
+                        diff1 = diff1*180/PI
+                        phase0a = self.phase0.average()*180/PI
+                        phase1a = self.phase1.average()*180/PI
                         print("PING! Heading = %f degrees, sample = %d" % (heading, self.idx))
+                        print("mag %f, pvar %f" % (self.dtft_0_0.mag_sq(), self.angle_buf.variance()))
+                        print("phase0 %f (%f), phase1 %f (%f)" % (phase0a, diff0, phase1a, diff1))
 
             self.idx = self.idx + 1
             '''
