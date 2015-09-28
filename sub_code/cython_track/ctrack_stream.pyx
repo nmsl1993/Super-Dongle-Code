@@ -3,6 +3,7 @@
 import math
 import numpy as np
 import scipy.stats
+import scipy.io
 cimport libc.math as cmath
 cimport numpy as np
 import matplotlib.pyplot as plt
@@ -128,22 +129,19 @@ cdef class Phase_Var:
 
 cdef double phase_difference(double a, double b):
     cdef double diff = a - b
-    #while diff > math.pi:
-    #    diff -= 2*math.pi
-    #while diff < -math.pi:
-    #    diff += 2*math.pi
-    diff = diff % (2*PI)
-    if diff > PI:
-        diff = diff - 2*PI
+    while diff > math.pi:
+        diff -= 2*math.pi
+    while diff < -math.pi:
+        diff += 2*math.pi
     return diff
 
 cdef int DTFT_TARGET_LENGTH = 512
-cdef int PHASE_VAR_LENGTH = 32
+cdef int PHASE_VAR_LENGTH = 128
 cdef int SAMPLE_RATE = 400000
 cdef double PHASE_THRESH = .00005
 cdef double MAG_THRESH = 5e7
-cdef int PING_COOLDOWN = 50000
-cdef int PING_COOLUP = 500
+cdef int PING_COOLDOWN = 200000
+cdef int PING_COOLUP = 2000
 
 cdef class Stream_Track:
     cdef NCO nco
@@ -178,22 +176,60 @@ cdef class Stream_Track:
     def process(self, np.ndarray[DTYPE_t, ndim=1] samples_0_0, np.ndarray[DTYPE_t, ndim=1]
             samples_0_1, np.ndarray[DTYPE_t, ndim=1] samples_1_0):
         cdef unsigned int length = len(samples_0_0)
-        cdef double diff0, diff1
+        cdef double diff0, diff1, angle
 
         cdef unsigned int i
+
+        # loggers for matlab analysis
+        cdef np.ndarray[DTYPE_t, ndim=1] nco_sin_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] nco_cos_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] dtft_0_0_mag_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] dtft_0_1_mag_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] dtft_1_0_mag_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] dtft_0_0_phase_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] dtft_0_1_phase_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] dtft_1_0_phase_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] phase0_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] phase0_avg_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] phase0_var_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] phase1_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] phase1_avg_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] phase1_var_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] angle_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] angle_avg_log = np.empty_like(samples_0_0, dtype=DTYPE)
+        cdef np.ndarray[DTYPE_t, ndim=1] angle_var_log = np.empty_like(samples_0_0, dtype=DTYPE)
         
         for i in range(length):
             self.nco.step()
+            nco_sin_log[i] = self.nco.sinTerm()
+            nco_cos_log[i] = self.nco.cosTerm()
             self.dtft_0_0.step(samples_0_0[i])
             self.dtft_0_1.step(samples_0_1[i])
             self.dtft_1_0.step(samples_1_0[i])
+            dtft_0_0_mag_log[i] = self.dtft_0_0.mag_sq()
+            dtft_0_0_phase_log[i] = self.dtft_0_0.phase()
+            dtft_0_1_mag_log[i] = self.dtft_0_1.mag_sq()
+            dtft_0_1_phase_log[i] = self.dtft_0_1.phase()
+            dtft_1_0_mag_log[i] = self.dtft_1_0.mag_sq()
+            dtft_1_0_phase_log[i] = self.dtft_1_0.phase()
     
             diff0 = phase_difference(self.dtft_0_1.phase(), self.dtft_0_0.phase())
             diff1 = phase_difference(self.dtft_1_0.phase(), self.dtft_0_0.phase())
+            phase0_log[i] = diff0
+            phase1_log[i] = diff1
     
             self.phase0.put(diff0)
             self.phase1.put(diff1)
-            self.angle_buf.put(cmath.atan2(self.phase0.average(), self.phase1.average()))
+            phase0_avg_log[i] = self.phase0.average()
+            phase0_var_log[i] = self.phase0.variance()
+            phase1_avg_log[i] = self.phase1.average()
+            phase1_var_log[i] = self.phase1.variance()
+
+            angle = cmath.atan2(self.phase0.average(), self.phase1.average())
+            angle_log[i] = angle
+            self.angle_buf.put(angle)
+            angle_avg_log[i] = self.angle_buf.average()
+            angle_var_log[i] = self.angle_buf.variance()
             if self.angle_buf.variance() < PHASE_THRESH and self.dtft_0_0.mag_sq() > MAG_THRESH:
                 if self.idx > self.lastping + PING_COOLDOWN or self.idx < self.lastping:
                     if self.ping_start == -1:
@@ -220,4 +256,23 @@ cdef class Stream_Track:
                 heading = self.angle_buf.average()*180/PI
                 print("PING! Heading = %f degrees, sample = %d" % (heading, self.idx))
             '''
-
+        l = dict()
+        l['nco_sin'] = nco_sin_log
+        l['nco_cos'] = nco_cos_log
+        l['dtft_0_0_mag'] = dtft_0_0_mag_log
+        l['dtft_0_1_mag'] = dtft_0_1_mag_log
+        l['dtft_1_0_mag'] = dtft_1_0_mag_log
+        l['dtft_0_0_phase'] = dtft_0_0_phase_log
+        l['dtft_0_1_phase'] = dtft_0_1_phase_log
+        l['dtft_1_0_phase'] = dtft_1_0_phase_log
+        l['phase0'] = phase0_log
+        l['phase0_avg'] = phase0_avg_log
+        l['phase0_var'] = phase0_var_log
+        l['phase1'] = phase1_log
+        l['phase1_avg'] = phase1_avg_log
+        l['phase1_var'] = phase1_var_log
+        l['angle'] = angle_log
+        l['angle_avg'] = angle_avg_log
+        l['angle_var'] = angle_var_log
+        print('dumping')
+        scipy.io.savemat('log.mat',l,do_compression=True)
